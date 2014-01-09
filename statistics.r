@@ -124,26 +124,31 @@ getInfoDistribution <- function(lista,dist){
 # Leemos los argumentos de entrada, que son el puerto de entrada y de salida
 args <- commandArgs(trailingOnly = TRUE)
 msg_id <- 1
-req_port <- args[1];
-resp_port <- args[2];
+in_port <- args[1];
+out_port <- args[2];
 
 context = init.context();
-in.socket = init.socket(context,"ZMQ_REQ");
-bind.socket(in.socket,paste("tcp://*:",req_port,sep=""));
+in.socket = init.socket(context,"ZMQ_REP");
+bind.socket(in.socket,paste("tcp://*:",in_port,sep=""));
 
-out.socket = init.socket(context,"ZMQ_REP");
-bind.socket(out.socket,paste("tcp://*:",resp_port,sep=""));
+out.socket = init.socket(context,"ZMQ_REQ");
+connect.socket(out.socket,paste("tcp://*:",out_port,sep=""));
 
+
+mensaje <- pack_msg('FrontSrv.expose',c('StatsSrv', paste("tcp://*:",in_port,sep=""), srv_description()));
+cat(mensaje,'\n');
+send.raw.string(out.socket, mensaje);
+receive.string(out.socket);
 
 while (1){
-	msg = receive.socket(in.socket)
+	msg = receive.string(in.socket)
 	msg <- fromJSON(msg);
 	method <- msg$method;
 	params <- msg$params;
 	id <- msg$id;
 	result <- do.call(method,params);
 	mensaje <- pack_msg(method,result,id);
-	send.socket(out.socket,mensaje);
+	send.raw.string(out.socket,mensaje);
 }
 
 
