@@ -33,20 +33,40 @@ srv_description <- function(){
 	cat('srv_description\n');
 	fn <- list(
 			compareTwo = list(
-					params = list(list1="double array, first list of values",list2="double array, second list of values",type="char, representing continuous data (c) or discrete data (d)",type_comparison="string, possible values: two.sided | greater | less"),
-					returned = list(ks="double, p value of the KS test", wilcox="double, p value of the Wilcoxon test")
+					params = list( c("list1", "double array, first list of values"),
+					       	       c("list2", "double array, second list of values"),
+						       c("type", "char, representing continuous data (c) or discrete data (d), default=c"),
+						       c("type_comparison", "string, possible values: two.sided | greater | less, default=two.sided")
+						       ),
+					return = list(ks="double, p value of the KS test", 
+					       	      wilcox="double, p value of the Wilcoxon test")
 			),
 			basicStats = list(
-					params = list(list="double array, list of values"),
-					returned = list(min="double, min value of the list",q1="double, first quartile value of the list",median="double, median value of the list",mean="double, mean value of the list",q3="double, third quartile value of the list",max="double, max value of the list",sd="double, std. deviation value of the list")
+					params = list( c("list", "double array, list of values") ),
+					return = list(min="double, min value of the list",
+						   	q1="double, first quartile value of the list",
+							median="double, median value of the list",
+							mean="double, mean value of the list",
+							q3="double, third quartile value of the list",
+							max="double, max value of the list",
+							sd="double, std. deviation value of the list")
 			),
 			distributionOf = list(
-					params = list(list="double array, list of values",type="char, representing continuous data (c) or discrete data (d)"),
-					returned = list(dist="list of distibutions not rejected")
+					params = list( c("list", "double array, list of values"),
+					       	       c("type", "char, representing continuous data (c) or discrete data (d), default=c")
+						       ),
+					return = list(dist="list of distibutions not rejected")
 			),
 			getInfoDistribution = list(
-					params = list(list="double array, list of values",dist="string, representing the continuous or discrete distribution"),
-					returned = list(chisq="double, p value of the ChiSq test",cramer="double, p value of the Von Cramer test",ad="double, p value of the Anderson Darling test",ks="double, p value of the KS test",estimate="list of doubles, parameters estimation of the distribution",plot="svg image, plots of fitting distribution")
+					params = list( c("list", "double array, list of values"),
+					       	       c("dist", "string, representing the continuous or discrete distribution, default=c")
+						       ),
+					return = list(chisq="double, p value of the ChiSq test",
+					       	      cramer="double, p value of the Von Cramer test",
+						      ad="double, p value of the Anderson Darling test",
+						      ks="double, p value of the KS test",
+						      estimate="list of doubles, parameters estimation of the distribution",
+						      plot="svg image, plots of fitting distribution")
 			)
 		);
 }
@@ -135,7 +155,9 @@ out.socket = init.socket(context,"ZMQ_REQ");
 connect.socket(out.socket,paste("tcp://*:",out_port,sep=""));
 
 
-mensaje <- pack_msg('FrontSrv.expose',c('StatsSrv', paste("tcp://*:",in_port,sep=""), srv_description()));
+mensaje <- pack_msg('FrontSrv.expose',list(service_name='StatsSrv', 
+					   endpoint=paste("tcp://*:",in_port,sep=""), 
+					   srv_description=srv_description()));
 cat(mensaje,'\n');
 send.raw.string(out.socket, mensaje);
 receive.string(out.socket);
