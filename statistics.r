@@ -17,10 +17,10 @@ library('fitdistrplus');
 #   Auxiliar function
 #===============================================================================
 
-# genera el paquete de emision JSONRPC con el metodo y los parámetros
+# genera el paquete de emision JSONRPC con el metodo y los parÃ¡metros
 pack_msg <- function(m,p,id=1){
     msg <- list(jsonrpc="2.0",id=id,method=m,params=p);
-	return(toJSON(msg));
+    return(toJSON(msg));
 }
 
 
@@ -29,7 +29,7 @@ pack_msg <- function(m,p,id=1){
 #===============================================================================
 
 
-srv_description <- function(){
+StatsSrv.srv_description <- function(){
 	cat('srv_description\n');
 	fn <- list(
 			compareTwo = list(
@@ -59,67 +59,95 @@ srv_description <- function(){
 			),
 			getInfoDistribution = list(
 					params = list( c("list", "double array, list of values"),
-					       	       c("dist", "string, representing the continuous or discrete distribution, default=c")
+					       	       c("dist", "string, indicating the name of the distribution you want to fit with the list of values")
 						       ),
 					return = list(chisq="double, p value of the ChiSq test",
-					       	      cramer="double, p value of the Von Cramer test",
-						      ad="double, p value of the Anderson Darling test",
-						      ks="double, p value of the KS test",
+					       	      cramer.value="double, p value of the Von Cramer test",
+						      ad.value="double, p value of the Anderson Darling test",
+						      ks.value="double, p value of the KS test",
+					       	      cramer.test="string, Von Cramer test decission",
+						      ad.test="string, Anderson Darling test decission",
+						      ks.test="string, KS test decission",
 						      estimate="list of doubles, parameters estimation of the distribution",
-						      plot="svg image, plots of fitting distribution")
+						      plot="svg image in text format, plots of fitting distribution")
 			)
 		);
 }
 
 
-
 # Compara dos muestras a traves de wilcox y ks
-compareTwo <- function(list1,list2,type="c",type_comparison="two.sided"){
-	if (type=="c"){
+StatsSrv.compareTwo <- function(list){
+        type_comparison <- "two.sided";
+	type_data <- "c";
+	if (length(list) > 2){
+	  type_data <- list[[3]];
+	  if (length(list) >= 4){
+	     type_comparison <- list[[4]];
+          }
+	}else if (length(list) == 2){
+           list1 <- list[[1]];
+	   list2 <- list[[2]];
+	}else{
+	   cat("ERROR EN EL NUMERO DE ARGUMENTOS!\n");
+	}
+	if (type_data=="c"){
 		# usamos ks y mann-whitney
 		wr <- wilcox.test(list1,list2,type_comparison);
 		ksr <- ks.test(list1,list2,type_comparison);
-		return(list(wilcox=wr$p,ks=ksr$p));
-	}else if (type=="d"){
+		return(list(wilcox=wr$p.value,ks=ksr$p));
+	}else if (type_data=="d"){
 		# usamos wilcox para datos categoricos.
 		wr <- wilcox.test(list1,list2,type_comparison);
-		return(list(wilcox=wr$p,ks=0.0));		
+		return(list(wilcox=wr$p.value,ks=0.0));		
 	}
 }
 
 
 # Devuelve los estadisticos basicos de un conjunto de datos (media, mediana, desv, quartiles, etc.)
-basicStats <- function(list){
-	res <- summary(list);
-	return(list(min=res["Min."],q1=res["1st Qu."],median=res["Median"],mean=res["Mean"],q3=res["3rd Qu."],max=res["Max."],sd=sd(list)))
+StatsSrv.basicStats <- function(list){
+	lista <- list[[1]];
+	res <- summary(lista);
+	res2 <- cbind(res);
+	#print(res);
+	return(list(min=res2[1],q1=res2[2],median=res2[3],mean=res2[4],q3=res2[5],max=res2[6],sd=sd(lista)))
 }
 
 
 
 # Se encarga de indicar que distribuciones se ajustan o no a un conjunto de valores (continuos o discretos), basandose en el test KS
-distributionOf <- function(list,type="c"){
-	res <- c();
-	if (type == "c"){
+StatsSrv.distributionOf <- function(list){
+	type_dist <- "c";
+	lista <- list[[1]];
+	if (length(list) >= 2){
+	  type <- list[[2]];
+	}
+	res <- list();
+	idx <- 1;
+	if (type_dist == "c"){
 		distr <- c("norm","lnorm","gamma","exp","weibull");
-	}else if (type == "d"){
+	}else if (type_dist == "d"){
 		distr <- c("binom","nbinom","geom","hyper","pois");
 	}else{
 		distr <- c();
 	}
 	for (i in 1:length(distr)){
 		#cat("distribution: ",distr[i],"\n");
-		f <- fitdist(list,distr[i]);
+		f <- fitdist(lista,distr[i]);
 		stat <- gofstat(f);
 		if (stat$kstest == "not rejected"){
-			res <- c(res,distr[i]);
+			res[[idx]] = distr[i];
+			idx <- idx + 1;
 		}
 	}
 	return(list(dist=res));
 }
 
 
-# Obtiene toda la información obtenida al ajustar una distribucion sobre un conjunto de valores
-getInfoDistribution <- function(lista,dist){
+# Obtiene toda la informacion obtenida al ajustar una distribucion sobre un conjunto de valores
+StatsSrv.getInfoDistribution <- function(list){
+     if (length(list) == 2){
+        lista <- list[[1]];
+	dist <- list[[2]];
 	f <- fitdist(lista,dist);
 	stat <- gofstat(f);
 	svg(filename="/tmp/rplot.svg");
@@ -132,7 +160,10 @@ getInfoDistribution <- function(lista,dist){
 			imagen <- paste(imagen,input[i],sep="\n");
 		}
 	}
-	return(list(chisq=stat$chisqpvalue,cramer=stat$cvmtest,ad=stat$adtest,ks=stat$kstest,estimate=f$estimate,plot=imagen));
+	return(list(chisq=stat$chisqpvalue,cramer.value=stat$cvm,cramer.test=stat$cvmtest,ad.value=stat$ad,ad.test=stat$adtest,ks.value=stat$ks,ks.test=stat$kstest,estimate=f$estimate,plot=imagen));
+     }else{
+       cat("ERROR EN LOS PARAMETROS!\n");
+     }
 }
 
 
@@ -157,23 +188,25 @@ connect.socket(out.socket,paste("tcp://*:",out_port,sep=""));
 
 mensaje <- pack_msg('FrontSrv.expose',list(service_name='StatsSrv', 
 					   endpoint=paste("tcp://*:",in_port,sep=""), 
-					   srv_description=srv_description()));
+					   srv_description=StatsSrv.srv_description()));
 cat(mensaje,'\n');
 send.raw.string(out.socket, mensaje);
-receive.string(out.socket);
+receive.string(out.socket); # Recibo el ACK
+
+ack <- pack_msg('ack',list());
 
 while (1){
 	msg = receive.string(in.socket)
 	msg <- fromJSON(msg);
-	method <- msg$method;
-	params <- msg$params;
-	id <- msg$id;
-	result <- do.call(method,params);
-	mensaje <- pack_msg(method,result,id);
+	send.raw.string(in.socket, ack); # Envio el ACK
+	cat("Calling",msg$method,"...\n");
+	result <- do.call(msg$method,list(list=msg$params));
+	mensaje <- pack_msg(msg$method,result,msg$id);
 	send.raw.string(out.socket,mensaje);
+	cat("Sending result...\n");
+	receive.string(out.socket); # Recibo el ACK
+	cat("Recieved ACK!\n");
 }
-
-
 
 #######################################################################################################################################
 
@@ -186,4 +219,3 @@ while (1){
 #	}
 #	return(res$p);
 #}
-
