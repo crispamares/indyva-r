@@ -13,15 +13,7 @@ library("rzmq");
 library("rjson");
 library('fitdistrplus');
 
-#===============================================================================
-#   Auxiliar function
-#===============================================================================
-
-# genera el paquete de emision JSONRPC con el metodo y los parÃ¡metros
-pack_msg <- function(m,p,id=1){
-    msg <- list(jsonrpc="2.0",id=id,method=m,params=p);
-    return(toJSON(msg));
-}
+if(!exists("JSONRPC.Protocol", mode="function")) source("jsonrpc.r");
 
 
 #===============================================================================
@@ -29,8 +21,8 @@ pack_msg <- function(m,p,id=1){
 #===============================================================================
 
 
-StatsSrv.srv_description <- function(){
-	cat('srv_description\n');
+srv_description <- function(){
+    cat('srv_description\n');
 	fn <- list(
 			compareTwo = list(
 					params = list( c("list1", "double array, first list of values"),
@@ -76,19 +68,21 @@ StatsSrv.srv_description <- function(){
 
 
 # Compara dos muestras a traves de wilcox y ks
-StatsSrv.compareTwo <- function(list){
+compareTwo <- function(list){
         type_comparison <- "two.sided";
 	type_data <- "c";
-	if (length(list) > 2){
+	if (length(list) < 2){ 
+	  return(-1);
+	}else if (length(list) > 2){
+	  if (list[[3]] != "c" && list[[3]] != "d") return(-1);
 	  type_data <- list[[3]];
 	  if (length(list) >= 4){
+	     if (list[[4]] != "two.sided" && list[[4]] != "greater" && list[[4]] != "less") return(-1);
 	     type_comparison <- list[[4]];
           }
 	}else if (length(list) == 2){
            list1 <- list[[1]];
 	   list2 <- list[[2]];
-	}else{
-	   cat("ERROR EN EL NUMERO DE ARGUMENTOS!\n");
 	}
 	if (type_data=="c"){
 		# usamos ks y mann-whitney
@@ -104,7 +98,8 @@ StatsSrv.compareTwo <- function(list){
 
 
 # Devuelve los estadisticos basicos de un conjunto de datos (media, mediana, desv, quartiles, etc.)
-StatsSrv.basicStats <- function(list){
+basicStats <- function(list){
+	if (length(list) != 1) return(-1);
 	lista <- list[[1]];
 	res <- summary(lista);
 	res2 <- cbind(res);
@@ -115,11 +110,13 @@ StatsSrv.basicStats <- function(list){
 
 
 # Se encarga de indicar que distribuciones se ajustan o no a un conjunto de valores (continuos o discretos), basandose en el test KS
-StatsSrv.distributionOf <- function(list){
+distributionOf <- function(list){
 	type_dist <- "c";
+	if (length(list) < 1) return(-1);
 	lista <- list[[1]];
 	if (length(list) >= 2){
-	  type <- list[[2]];
+          if (list[[2]] != "c" && list[[2]] != "d") return(-1);
+	  type_dist <- list[[2]];
 	}
 	res <- list();
 	idx <- 1;
@@ -144,9 +141,10 @@ StatsSrv.distributionOf <- function(list){
 
 
 # Obtiene toda la informacion obtenida al ajustar una distribucion sobre un conjunto de valores
-StatsSrv.getInfoDistribution <- function(list){
+getInfoDistribution <- function(list){
      if (length(list) == 2){
         lista <- list[[1]];
+	if (list[[2]] != "norm" && list[[2]] != "lnorm" && list[[2]] != "gamma" && list[[2]] != "exp" && list[[2]] != "weibull" && list[[2]] != "binom" && list[[2]] != "nbinom" && list[[2]] != "geom" && list[[2]] != "hyper" && list[[2]] != "pois") return(-1);
 	dist <- list[[2]];
 	f <- fitdist(lista,dist);
 	stat <- gofstat(f);
@@ -162,7 +160,7 @@ StatsSrv.getInfoDistribution <- function(list){
 	}
 	return(list(chisq=stat$chisqpvalue,cramer.value=stat$cvm,cramer.test=stat$cvmtest,ad.value=stat$ad,ad.test=stat$adtest,ks.value=stat$ks,ks.test=stat$kstest,estimate=f$estimate,plot=imagen));
      }else{
-       cat("ERROR EN LOS PARAMETROS!\n");
+       return(-1);
      }
 }
 
@@ -172,40 +170,58 @@ StatsSrv.getInfoDistribution <- function(list){
 #   Main Method
 #===============================================================================
 
+# Almacenamos en una lista los servicios disponibles de Stats
+services <- c("compareTwo","basicStats","distributionOf","getInfoDistribution");
+
 # Leemos los argumentos de entrada, que son el puerto de entrada y de salida
 args <- commandArgs(trailingOnly = TRUE)
 msg_id <- 1
-in_port <- args[1];
-out_port <- args[2];
+service_port <- args[1];
+control_port <- args[2];
 
 context = init.context();
-in.socket = init.socket(context,"ZMQ_REP");
-bind.socket(in.socket,paste("tcp://*:",in_port,sep=""));
 
-out.socket = init.socket(context,"ZMQ_REQ");
-connect.socket(out.socket,paste("tcp://*:",out_port,sep=""));
+# Creamos el socket del servicio Stats
+service_socket = init.socket(context,"ZMQ_REP");
+bind.socket(service_socket,paste("tcp://*:",service_port,sep=""));
 
+# Nos conectamos al socket control del Core Central
+control_socket = init.socket(context,"ZMQ_REQ");
+connect.socket(control_socket,paste("tcp://*:",control_port,sep=""));
 
-mensaje <- pack_msg('FrontSrv.expose',list(service_name='StatsSrv', 
-					   endpoint=paste("tcp://*:",in_port,sep=""), 
-					   srv_description=StatsSrv.srv_description()));
-cat(mensaje,'\n');
-send.raw.string(out.socket, mensaje);
-receive.string(out.socket); # Recibo el ACK
-
-ack <- pack_msg('ack',list());
+# Mandamos los servicios que disponemos en Stats a traves del socket control
+params <- list(service_name='StatsSrv',endpoint=paste("tcp://*:",service_port,sep=""),srv_description=srv_description());
+mensaje <- JSONRPC.Request('FrontSrv.expose',params,msg_id);
+#cat(mensaje,'\n');
+send.raw.string(control_socket, mensaje);
+receive.string(control_socket); # Recibo el ACK
 
 while (1){
-	msg = receive.string(in.socket)
-	msg <- fromJSON(msg);
-	send.raw.string(in.socket, ack); # Envio el ACK
-	cat("Calling",msg$method,"...\n");
-	result <- do.call(msg$method,list(list=msg$params));
-	mensaje <- pack_msg(msg$method,result,msg$id);
-	send.raw.string(out.socket,mensaje);
-	cat("Sending result...\n");
-	receive.string(out.socket); # Recibo el ACK
-	cat("Recieved ACK!\n");
+        cat("Recieving request...\n");
+	msg = receive.string(service_socket);
+	cat(msg,"\n");
+	tryCatch({
+		msg <- fromJSON(msg)
+		cat("Calling",msg$method,"...\n");
+		if (!is.element(msg$method,services)){
+		   mensaje <- JSONRPC.ErrorResponse("JSONRPC.MethodNotFoundError",list(),msg_id);
+	           send.raw.string(service_socket,mensaje);
+		}else{
+		   result <- do.call(msg$method,list(list=msg$params));
+		   if (is.numeric(result) && result == -1){
+	 	      mensaje <- JSONRPC.ErrorResponse("JSONRPC.InvalidParamsError",list(),msg_id);
+	              send.raw.string(service_socket,mensaje);
+		   }else{
+		      mensaje <- JSONRPC.SuccessResponse(result,msg$id);
+		      cat("Sending result...\n");
+		      #cat(mensaje,"\n");
+		      send.raw.string(service_socket,mensaje);
+		   }
+		}
+        },error = function(err){
+	   mensaje <- JSONRPC.ErrorResponse("JSONRPC.InvalidRequestError",list(),msg_id);
+	   send.raw.string(service_socket,mensaje);
+        },finally = function(w){});
 }
 
 #######################################################################################################################################
