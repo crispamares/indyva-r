@@ -183,14 +183,14 @@ context = init.context();
 
 # Creamos el socket del servicio Stats
 service_socket = init.socket(context,"ZMQ_REP");
-bind.socket(service_socket,paste("tcp://*:",service_port,sep=""));
+bind.socket(service_socket,paste("tcp://127.0.0.1:",service_port,sep=""));
 
 # Nos conectamos al socket control del Core Central
 control_socket = init.socket(context,"ZMQ_REQ");
-connect.socket(control_socket,paste("tcp://*:",control_port,sep=""));
+connect.socket(control_socket,paste("tcp://127.0.0.1:",control_port,sep=""));
 
 # Mandamos los servicios que disponemos en Stats a traves del socket control
-params <- list(service_name='StatsSrv',endpoint=paste("tcp://*:",service_port,sep=""),srv_description=srv_description());
+params <- list(service_name='StatsSrv',endpoint=paste("tcp://127.0.0.1:",service_port,sep=""),srv_description=srv_description());
 mensaje <- JSONRPC.Request('FrontSrv.expose',params,msg_id);
 #cat(mensaje,'\n');
 send.raw.string(control_socket, mensaje);

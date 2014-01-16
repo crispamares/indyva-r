@@ -143,7 +143,7 @@ datos_distribucion <- rlnorm(1000,4.3245,0.1345421);
 # Iniciamos contexto y socket por puerto 8888
 context = init.context();
 control_socket = init.socket(context,"ZMQ_REP");
-bind.socket(control_socket,paste("tcp://*:",8888,sep=""));
+bind.socket(control_socket,paste("tcp://127.0.0.1:",8888,sep=""));
 
 
 # Recibimos servicios del Stats y respondemos ACK
