@@ -1,0 +1,3 @@
+# Convert every file to LF when committed and to local when checkout
+*.r text
+*.md text
