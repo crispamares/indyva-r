@@ -80,14 +80,15 @@ compareTwo <- function(list){
 	     if (list[[4]] != "two.sided" && list[[4]] != "greater" && list[[4]] != "less") return(-1);
 	     type_comparison <- list[[4]];
           }
-	}else if (length(list) == 2){
-           list1 <- list[[1]];
-	   list2 <- list[[2]];
 	}
+
+    list1 <- list[[1]];
+    list2 <- list[[2]];
+	
 	if (type_data=="c"){
 		# usamos ks y mann-whitney
 		wr <- wilcox.test(list1,list2,type_comparison);
-		ksr <- ks.test(list1,list2,type_comparison);
+		ksr <- ks.test(list1,list2, alternative=type_comparison);
 		return(list(wilcox=wr$p.value,ks=ksr$p));
 	}else if (type_data=="d"){
 		# usamos wilcox para datos categoricos.
