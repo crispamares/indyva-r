@@ -8,8 +8,6 @@ Server: StatsSrv
 Services: basicStats, compareTwo, distributionOf, getInfoDistribution
 
 TODO: 
-- Exceptions control
-- Kruskal wallis for N series
 
 
 code    message	meaning
