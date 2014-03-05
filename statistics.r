@@ -2,9 +2,6 @@
 # Created on 18/12/2013
 # @author: sgonzalez
 
-# TODO: Detectar excepciones y tratarlos
-# TODO: programar Kruskal-wallis
-
 
 # En caso de ser necesario, instalar las librerias, copiando la siguiente linea.
 # install.packages(c("rzmq","fitdistrplus","rjson"));
@@ -23,16 +20,32 @@ if(!exists("JSONRPC.Protocol", mode="function")) source("jsonrpc.r");
 
 srv_description <- function(){
     cat('srv_description\n');
-	fn <- list(
-			compareTwo = list(
-					params = list( c("list1", "double array, first list of values"),
-					       	       c("list2", "double array, second list of values"),
-						       c("type", "char, representing continuous data (c) or discrete data (d), default=c"),
+    fn <- list(
+			compare = list(
+					params = list( c("list", "double array of arrays, list of samples of values"),
+						       c("type", "independent (i) or dependent data (d), default=i"),
 						       c("type_comparison", "string, possible values: two.sided | greater | less, default=two.sided")
 						       ),
-					return = list(ks="double, p value of the KS test", 
-					       	      wilcox="double, p value of the Wilcoxon test")
+					return = list(pvalue="double, p value of the test", 
+					              decision="string, indicating if test is rejected or not",
+					       	      test="string, type of test used",
+					       	      desc="string, description of the test")
 			),
+			correlation = list(
+					params = list( c("list", "double array of arrays, list of 2 samples of values")
+						       ),
+					return = list(value="double, correlation value", 
+					       	      type="string, type of correlation")
+			),
+			#compareTwo = list(
+			#		params = list( c("list1", "double array, first list of values"),
+			#		       	       c("list2", "double array, second list of values"),
+			#			       c("type", "char, representing continuous data (c) or discrete data (d), default=c"),
+			#			       c("type_comparison", "string, possible values: two.sided | greater | less, default=two.sided")
+			#			       ),
+			#		return = list(ks="double, p value of the KS test", 
+			#		       	      wilcox="double, p value of the Wilcoxon test")
+			#),
 			basicStats = list(
 					params = list( c("list", "double array, list of values") ),
 					return = list(min="double, min value of the list",
@@ -67,35 +80,236 @@ srv_description <- function(){
 }
 
 
-# Compara dos muestras a traves de wilcox y ks
-compareTwo <- function(list){
-        type_comparison <- "two.sided";
-	type_data <- "c";
-	if (length(list) < 2){ 
-	  return(-1);
-	}else if (length(list) > 2){
-	  if (list[[3]] != "c" && list[[3]] != "d") return(-1);
-	  type_data <- list[[3]];
-	  if (length(list) >= 4){
-	     if (list[[4]] != "two.sided" && list[[4]] != "greater" && list[[4]] != "less") return(-1);
-	     type_comparison <- list[[4]];
-          }
-	}
-
-    list1 <- list[[1]];
-    list2 <- list[[2]];
-	
-	if (type_data=="c"){
-		# usamos ks y mann-whitney
-		wr <- wilcox.test(list1,list2,type_comparison);
-		ksr <- ks.test(list1,list2, alternative=type_comparison);
-		return(list(wilcox=wr$p.value,ks=ksr$p));
-	}else if (type_data=="d"){
-		# usamos wilcox para datos categoricos.
-		wr <- wilcox.test(list1,list2,type_comparison);
-		return(list(wilcox=wr$p.value,ks=0.0));		
+#correlation between two samples
+correlation <- function(list){
+	if (length(list) != 2){
+	   return(-1);
+	}else{
+	   lista1 <- list[[1]];
+	   lista2 <- list[[2]];
+	   if (sigueNormal(lista1) == TRUE && sigueNormal(lista2) == TRUE){ # Parametrico
+	      cat("Siguen una dist. Normal\n");
+	      c = cor(lista1,lista2,method="pearson");
+	      type <- 'Pearson correlation';
+	   }else{ # No parametrico
+	      cat("No sigue distribucion\n");
+	      c = cor(lista1,lista2,method="spearman");
+	      type <- 'Spearman correlation';
+	   }
+	   return(list(value=c,type=type));
 	}
 }
+
+# compare two or more samples
+compare <- function(list){
+	if (length(list) < 2){ 
+	  return(-1);
+	}else{
+	  lista_samples <- list[[1]];
+          type_comparison <- "two.sided";
+	  type_data <- "i";
+	  if (list[[2]] != "i" && list[[2]] != "d") return(-1);
+	  type_data <- list[[2]];
+	  if (length(list) == 3){
+	     if (list[[3]] != "two.sided" && list[[3]] != "greater" && list[[3]] != "less") return(-1);
+	     type_comparison <- list[[3]];
+          }
+	}
+	if (length(lista_samples) == 2){ # Dos muestras
+	   cat("Numero de samples:2\n");
+	   if (sigueNormal(lista_samples[[1]]) == TRUE && sigueNormal(lista_samples[[2]]) == TRUE){ # Parametrico
+	   	   cat("Siguen una dist. Normal\n");
+	   	   if (type_data == "i"){ # Independientes
+		      cat("Independientes\n");
+	   	      r <- t.test(lista_samples[[1]],lista_samples[[2]],paired=F,alternative=type_comparison);
+		      pvalue <- r$p.value;
+		      if (type_comparison == 'two.sided'){
+		      	 desc <- 'The alternative hypothesis evaluated in the test affirms that the two samples provide from different distributions.'
+		      }else if (type_comparison == 'greater'){
+		      	 desc <- 'The alternative hypothesis evaluated in the test affirms that the first sample is lower than the second sample.'
+		      }else{
+		      	 desc <- 'The alternative hypothesis evaluated in the test affirms that the first sample is greater than the second sample.'
+		      }
+		      if (pvalue < 0.05){
+			 if (pvalue < 0.0001){
+			    dec <- '*** hypothesis rejected';
+			 }else if (pvalue < 0.001){
+			    dec <- '** hypothesis rejected';
+			 }else{
+			    dec <- '* hypothesis rejected';
+			 } 
+		      }else{
+		         dec <- 'hypothesis NOT rejected';
+		      }
+		      test <- "Welch T-test";
+		   }else{ # Dependientes
+		      cat("Dependientes\n");
+	   	      r <- t.test(lista_samples[[1]],lista_samples[[2]],paired=T,alternative=type_comparison);		      
+		      pvalue <- r$p.value;
+		      if (pvalue < 0.05){
+			 if (pvalue < 0.0001){
+			    dec <- '*** hypothesis rejected';
+			 }else if (pvalue < 0.001){
+			    dec <- '** hypothesis rejected';
+			 }else{
+			    dec <- '* hypothesis rejected';
+			 } 
+		      }else{
+		         dec <- 'hypothesis NOT rejected';
+		      }
+		      if (type_comparison == 'two.sided'){
+		      	 desc <- 'The alternative hypothesis evaluated in the test affirms that the two samples provide from different distributions.'
+		      }else if (type_comparison == 'greater'){
+		      	 desc <- 'The alternative hypothesis evaluated in the test affirms that the first sample is lower than the second sample.'
+		      }else{
+		      	 desc <- 'The alternative hypothesis evaluated in the test affirms that the first sample is greater than the second sample.'
+		      }
+		      test <- "Two Paired T-test";
+	      	   }
+	   }else{ # No parametrico, funciona para independientes y para dependientes
+     	          cat("No siguen dist. En este caso funciona igual para dependientes e idependientes\n");
+	   	  r <- ks.test(lista_samples[[1]],lista_samples[[2]],alternative=type_comparison); 
+		  pvalue <- r$p.value;
+		      if (pvalue < 0.05){
+			 if (pvalue < 0.0001){
+			    dec <- '*** hypothesis rejected';
+			 }else if (pvalue < 0.001){
+			    dec <- '** hypothesis rejected';
+			 }else{
+			    dec <- '* hypothesis rejected';
+			 } 
+		      }else{
+		         dec <- 'hypothesis NOT rejected';
+		      }
+		      if (type_comparison == 'two.sided'){
+		      	 desc <- 'The alternative hypothesis evaluated in the test affirms that the two samples provide from different distributions.'
+		      }else if (type_comparison == 'greater'){
+		      	 desc <- 'The alternative hypothesis evaluated in the test affirms that the first sample is lower than the second sample.'
+		      }else{
+		      	 desc <- 'The alternative hypothesis evaluated in the test affirms that the first sample is greater than the second sample.'
+		      }
+		  test <- "Two paired Kolmogorov Smirnov test";
+	   }
+        }else if (length(lista_samples) > 2){ # Mas de dos muestras
+	   cat("Numero de samples:",length(lista_samples),"\n");
+	   decision <- TRUE;
+	   for (i in 1:length(lista_samples)){
+	       if (sigueNormal(lista_samples[[i]]) == FALSE){
+	       	  decision <- FALSE;
+		  break;
+		}
+	   }
+	   if (decision == TRUE){ # Parametrico
+     	         cat("Siguen una dist. Normal\n");
+	         m <- matrix(0,ncol=length(lista_samples),nrow=length(lista_samples[[1]]));
+		 dimnames(m) <- list(NULL,c(1:length(lista_samples)));
+		 m <- data.frame(m);
+		 for (i in 1:length(lista_samples)){
+		     m[,i] <- lista_samples[[i]];
+		 }
+		 #print(m);
+	      if (type_data == "i"){ # independiente (one-way ANOVA)
+	         cat("Independientes\n");
+	      	 exps <- stack(m);
+		 print(exps);
+		 r <- anova(lm(values~ind,data=exps));
+		 pvalue <- summary(r);
+  	         test <- "Anova";
+	      }else{ # dependientes (repeated measures ANOVA)
+	         cat("Dependientes\n");
+	      	 exps <- stack(m);
+		 r <- aov(lm(values~ind,data=exps));
+		 pvalue <- summary(r);
+  	         test <- "Repeated measures Anova";
+	      }
+	   }else{ # No parametrico
+	      cat("No siguen una distribucion.\n");
+	      if (type_data == "i"){ # independiente (Kruskal Wallis)
+	         cat("Independientes\n");
+	      	 r <- kruskal.test(lista_samples);
+		 pvalue <- r$p.value;
+		      if (pvalue < 0.05){
+			 if (pvalue < 0.0001){
+			    dec <- '*** hypothesis rejected';
+			 }else if (pvalue < 0.001){
+			    dec <- '** hypothesis rejected';
+			 }else{
+			    dec <- '* hypothesis rejected';
+			 } 
+		      }else{
+		         dec <- 'hypothesis NOT rejected';
+		      }
+	      	      desc <- 'The alternative hypothesis evaluated in the test affirms that all the samples provide from different distributions.'
+  	         test <- "Kruskal Wallis test";
+	      }else{ # dependientes (Friedman)
+	         cat("Dependientes\n");
+	         m <- matrix(0,ncol=length(lista_samples),nrow=length(lista_samples[[1]]));
+		 dimnames(m) <- list(NULL,c(1:length(lista_samples)));
+		 for (i in 1:length(lista_samples)){
+		     m[,i] <- lista_samples[[i]];
+		 }
+	      	 r <- friedman.test(m);
+		 pvalue <- r$p.value;
+		      if (pvalue < 0.05){
+			 if (pvalue < 0.0001){
+			    dec <- '*** hypothesis rejected';
+			 }else if (pvalue < 0.001){
+			    dec <- '** hypothesis rejected';
+			 }else{
+			    dec <- '* hypothesis rejected';
+			 } 
+		      }else{
+		         dec <- 'hypothesis NOT rejected';
+		      }
+	      	      desc <- 'The alternative hypothesis evaluated in the test affirms that all the samples provide from different distributions.'
+  	         test <- "Friedman test";
+	      }
+	   }
+	}
+	return(list(pvalue=pvalue,decision=dec,test=test,desc=desc));
+}
+
+
+# Analiza si una muestra sigue una distribucion normal o no
+sigueNormal <- function(list){
+	if (length(list) < 10) return(FALSE);
+	f <- fitdist(list,"norm");
+	stat <- gofstat(f);
+	if (stat$kstest == "not rejected"){
+	   return(TRUE);
+	}else{
+	   return(FALSE);
+	}
+}
+
+
+# Compara dos muestras a traves de wilcox y ks
+#compareTwo <- function(list){
+#        type_comparison <- "two.sided";
+#	type_data <- "c";
+#	if (length(list) < 2){ 
+#	  return(-1);
+#	}else if (length(list) > 2){
+#	  if (list[[3]] != "c" && list[[3]] != "d") return(-1);
+#	  type_data <- list[[3]];
+#	  if (length(list) >= 4){
+#	     if (list[[4]] != "two.sided" && list[[4]] != "greater" && list[[4]] != "less") return(-1);
+#	     type_comparison <- list[[4]];
+#          }
+#	}
+#
+#	
+#	if (type_data=="c"){
+#		# usamos ks y mann-whitney
+#		wr <- wilcox.test(list1,list2,type_comparison);
+#		ksr <- ks.test(list1,list2, alternative=type_comparison);
+#		return(list(wilcox=wr$p.value,ks=ksr$p));
+#	}else if (type_data=="d"){
+#		# usamos wilcox para datos categoricos.
+#		wr <- wilcox.test(list1,list2,type_comparison);
+#		return(list(wilcox=wr$p.value,ks=0.0));		
+#	}
+#}
 
 
 # Devuelve los estadisticos basicos de un conjunto de datos (media, mediana, desv, quartiles, etc.)
@@ -172,7 +386,7 @@ getInfoDistribution <- function(list){
 #===============================================================================
 
 # Almacenamos en una lista los servicios disponibles de Stats
-services <- c("compareTwo","basicStats","distributionOf","getInfoDistribution");
+services <- c("compare","correlation","basicStats","distributionOf","getInfoDistribution");
 
 # Leemos los argumentos de entrada, que son el puerto de entrada y de salida
 args <- commandArgs(trailingOnly = TRUE)
@@ -225,14 +439,3 @@ while (1){
         },finally = function(w){});
 }
 
-#######################################################################################################################################
-
-# Compara N muestras a traves de kruskal wallis
-#compareNSamples <- function(listado,func=""){
-#	if (func == ""){
-#		res <- kruskal.test(listado);
-#	}else{
-#		res <- kruskal.test(func,data=listado);
-#	}
-#	return(res$p);
-#}
