@@ -1,5 +1,6 @@
 # jsonrpc.R -                                                                                                     
-# Created on 18/12/2013                                                                                              
+# Created on 18/12/2013     
+# Modified on 05/03/2014
 # @author: sgonzalez                                                                                                 
 
                                                                                                                     
@@ -23,32 +24,32 @@ JSONRPC.SuccessResponse <- function(r,id=1){
 
 
 JSONRPC.InvalidRequestError <- function(...){
-	return(list(code=-32600,message="Invalid Request"));
+  return(list(code=-32600,message="Invalid Request"));
 }
 
 
 JSONRPC.MethodNotFoundError <- function(...){
-	return(list(code=-32601,message="Method not found"));
+  return(list(code=-32601,message="Method not found"));
 }
 
 
 JSONRPC.InvalidParamsError <- function(...){
-	return(list(code=-32602,message="Invalid Params"));
+  return(list(code=-32602,message="Invalid Params"));
 }
 
 
 JSONRPC.InternalError <- function(...){
-	return(list(code=-32603,message="Internal Error"));
+  return(list(code=-32603,message="Internal Error"));
 }
 
 
 JSONRPC.ServerError <- function(...){
-	return(list(code=-32000,message=""));
+  return(list(code=-32000,message=""));
 }
 
 
 JSONRPC.SpecificError <- function(info){
-	return(list(code=info.code,message=info.message));
+  return(list(code=info.code,message=info.message));
 }
 
 
