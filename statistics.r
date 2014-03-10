@@ -29,7 +29,9 @@ srv_description <- function(){
 					return = list(pvalue="double, p value of the test", 
 					              decision="string, indicating if test is rejected or not",
 					       	      test="string, type of test used",
-					       	      desc="string, description of the test")
+					       	      desc="string, description of the test",
+                                                      rejected="boolean, indicating if the test is rejected"
+                                          )
 			),
 			correlation = list(
 					params = list( c("list", "double array of arrays, list of 2 samples of values")
@@ -133,13 +135,17 @@ compare <- function(list){
 		      if (pvalue < 0.05){
 			 if (pvalue < 0.0001){
 			    dec <- '*** hypothesis rejected';
+                            rejected <- TRUE;
 			 }else if (pvalue < 0.001){
 			    dec <- '** hypothesis rejected';
+                            rejected <- TRUE;
 			 }else{
 			    dec <- '* hypothesis rejected';
+                            rejected <- TRUE;
 			 } 
 		      }else{
 		         dec <- 'hypothesis NOT rejected';
+                         rejected <- FALSE;
 		      }
 		      test <- "Welch T-test";
 		   }else{ # Dependientes
@@ -149,13 +155,17 @@ compare <- function(list){
 		      if (pvalue < 0.05){
 			 if (pvalue < 0.0001){
 			    dec <- '*** hypothesis rejected';
+                            rejected <- TRUE;
 			 }else if (pvalue < 0.001){
 			    dec <- '** hypothesis rejected';
+                            rejected <- TRUE;
 			 }else{
 			    dec <- '* hypothesis rejected';
+                            rejected <- TRUE;
 			 } 
 		      }else{
 		         dec <- 'hypothesis NOT rejected';
+                         rejected <- FALSE;
 		      }
 		      if (type_comparison == 'two.sided'){
 		      	 desc <- 'The alternative hypothesis evaluated in the test affirms that the two samples provide from different distributions.'
@@ -173,13 +183,17 @@ compare <- function(list){
 		      if (pvalue < 0.05){
 			 if (pvalue < 0.0001){
 			    dec <- '*** hypothesis rejected';
+                            rejected <- TRUE;
 			 }else if (pvalue < 0.001){
 			    dec <- '** hypothesis rejected';
+                            rejected <- TRUE;
 			 }else{
 			    dec <- '* hypothesis rejected';
+                            rejected <- TRUE;
 			 } 
 		      }else{
 		         dec <- 'hypothesis NOT rejected';
+                         rejected <- FALSE;
 		      }
 		      if (type_comparison == 'two.sided'){
 		      	 desc <- 'The alternative hypothesis evaluated in the test affirms that the two samples provide from different distributions.'
@@ -231,13 +245,17 @@ compare <- function(list){
 		      if (pvalue < 0.05){
 			 if (pvalue < 0.0001){
 			    dec <- '*** hypothesis rejected';
+                            rejected <- TRUE;
 			 }else if (pvalue < 0.001){
 			    dec <- '** hypothesis rejected';
+                            rejected <- TRUE;
 			 }else{
 			    dec <- '* hypothesis rejected';
+                            rejected <- TRUE;
 			 } 
 		      }else{
 		         dec <- 'hypothesis NOT rejected';
+                         rejected <- FALSE;
 		      }
 	      	      desc <- 'The alternative hypothesis evaluated in the test affirms that all the samples provide from different distributions.'
   	         test <- "Kruskal Wallis test";
@@ -253,20 +271,24 @@ compare <- function(list){
 		      if (pvalue < 0.05){
 			 if (pvalue < 0.0001){
 			    dec <- '*** hypothesis rejected';
+                            rejected <- TRUE;
 			 }else if (pvalue < 0.001){
 			    dec <- '** hypothesis rejected';
+                            rejected <- TRUE;
 			 }else{
 			    dec <- '* hypothesis rejected';
+                            rejected <- TRUE;
 			 } 
 		      }else{
 		         dec <- 'hypothesis NOT rejected';
+                         rejected <- FALSE;
 		      }
 	      	      desc <- 'The alternative hypothesis evaluated in the test affirms that all the samples provide from different distributions.'
   	         test <- "Friedman test";
 	      }
 	   }
 	}
-	return(list(pvalue=pvalue,decision=dec,test=test,desc=desc));
+	return(list(pvalue=pvalue,decision=dec,test=test,desc=desc,rejected=rejected));
 }
 
 
