@@ -126,7 +126,7 @@ compare <- function(list){
 	   	      r <- t.test(lista_samples[[1]],lista_samples[[2]],paired=F,alternative=type_comparison);
 		      pvalue <- r$p.value;
 		      if (type_comparison == 'two.sided'){
-		      	 desc <- 'The alternative hypothesis evaluated in the test affirms that the two samples provide from different distributions.'
+		      	 desc <- 'The alternative hypothesis evaluated in the test affirms that the two samples come from different distributions.'
 		      }else if (type_comparison == 'greater'){
 		      	 desc <- 'The alternative hypothesis evaluated in the test affirms that the first sample is lower than the second sample.'
 		      }else{
@@ -168,7 +168,7 @@ compare <- function(list){
                          rejected <- FALSE;
 		      }
 		      if (type_comparison == 'two.sided'){
-		      	 desc <- 'The alternative hypothesis evaluated in the test affirms that the two samples provide from different distributions.'
+		      	 desc <- 'The alternative hypothesis evaluated in the test affirms that the two samples come from different distributions.'
 		      }else if (type_comparison == 'greater'){
 		      	 desc <- 'The alternative hypothesis evaluated in the test affirms that the first sample is lower than the second sample.'
 		      }else{
@@ -196,7 +196,7 @@ compare <- function(list){
                          rejected <- FALSE;
 		      }
 		      if (type_comparison == 'two.sided'){
-		      	 desc <- 'The alternative hypothesis evaluated in the test affirms that the two samples provide from different distributions.'
+		      	 desc <- 'The alternative hypothesis evaluated in the test affirms that the two samples come from different distributions.'
 		      }else if (type_comparison == 'greater'){
 		      	 desc <- 'The alternative hypothesis evaluated in the test affirms that the first sample is lower than the second sample.'
 		      }else{
@@ -257,7 +257,7 @@ compare <- function(list){
 		         dec <- 'NULL hypothesis NOT rejected';
                          rejected <- FALSE;
 		      }
-	      	      desc <- 'The alternative hypothesis evaluated in the test affirms that all the samples provide from different distributions.'
+	      	      desc <- 'The alternative hypothesis evaluated in the test affirms that all the samples come from different distributions.'
   	         test <- "Kruskal Wallis test";
 	      }else{ # dependientes (Friedman)
 	         cat("Dependientes\n");
@@ -283,7 +283,7 @@ compare <- function(list){
 		         dec <- 'NULL hypothesis NOT rejected';
                          rejected <- FALSE;
 		      }
-	      	      desc <- 'The alternative hypothesis evaluated in the test affirms that all the samples provide from different distributions.'
+	      	      desc <- 'The alternative hypothesis evaluated in the test affirms that all the samples come from different distributions.'
   	         test <- "Friedman test";
 	      }
 	   }
