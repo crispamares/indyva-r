@@ -126,25 +126,25 @@ compare <- function(list){
 	   	      r <- t.test(lista_samples[[1]],lista_samples[[2]],paired=F,alternative=type_comparison);
 		      pvalue <- r$p.value;
 		      if (type_comparison == 'two.sided'){
-		      	 desc <- 'The alternative hypothesis evaluated in the test affirms that the two samples come from different distributions.'
+		      	 desc <- 'The hypothesis evaluated in the test affirms that the two samples come from the same distribution.'
 		      }else if (type_comparison == 'greater'){
-		      	 desc <- 'The alternative hypothesis evaluated in the test affirms that the first sample is lower than the second sample.'
+		      	 desc <- 'The hypothesis evaluated in the test affirms that the first sample is greater than the second sample.'
 		      }else{
-		      	 desc <- 'The alternative hypothesis evaluated in the test affirms that the first sample is greater than the second sample.'
+		      	 desc <- 'The hypothesis evaluated in the test affirms that the first sample is lower than the second sample.'
 		      }
 		      if (pvalue < 0.05){
 			 if (pvalue < 0.0001){
-			    dec <- '*** NULL hypothesis rejected';
+			    dec <- '*** hypothesis rejected';
                             rejected <- TRUE;
 			 }else if (pvalue < 0.001){
-			    dec <- '** NULL hypothesis rejected';
+			    dec <- '** hypothesis rejected';
                             rejected <- TRUE;
 			 }else{
-			    dec <- '* NULL hypothesis rejected';
+			    dec <- '* hypothesis rejected';
                             rejected <- TRUE;
 			 } 
 		      }else{
-		         dec <- 'NULL hypothesis NOT rejected';
+		         dec <- 'hypothesis NOT rejected';
                          rejected <- FALSE;
 		      }
 		      test <- "Welch T-test";
@@ -154,25 +154,25 @@ compare <- function(list){
 		      pvalue <- r$p.value;
 		      if (pvalue < 0.05){
 			 if (pvalue < 0.0001){
-			    dec <- '*** NULL hypothesis rejected';
+			    dec <- '*** hypothesis rejected';
                             rejected <- TRUE;
 			 }else if (pvalue < 0.001){
-			    dec <- '** NULL hypothesis rejected';
+			    dec <- '** hypothesis rejected';
                             rejected <- TRUE;
 			 }else{
-			    dec <- '* NULL hypothesis rejected';
+			    dec <- '* hypothesis rejected';
                             rejected <- TRUE;
 			 } 
 		      }else{
-		         dec <- 'NULL hypothesis NOT rejected';
+		         dec <- 'hypothesis NOT rejected';
                          rejected <- FALSE;
 		      }
 		      if (type_comparison == 'two.sided'){
-		      	 desc <- 'The alternative hypothesis evaluated in the test affirms that the two samples come from different distributions.'
+		      	 desc <- 'The hypothesis evaluated in the test affirms that the two samples come from the same distribution.'
 		      }else if (type_comparison == 'greater'){
-		      	 desc <- 'The alternative hypothesis evaluated in the test affirms that the first sample is lower than the second sample.'
+		      	 desc <- 'The hypothesis evaluated in the test affirms that the first sample is greater than the second sample.'
 		      }else{
-		      	 desc <- 'The alternative hypothesis evaluated in the test affirms that the first sample is greater than the second sample.'
+		      	 desc <- 'The hypothesis evaluated in the test affirms that the first sample is lower than the second sample.'
 		      }
 		      test <- "Two Paired T-test";
 	      	   }
@@ -182,25 +182,25 @@ compare <- function(list){
 		  pvalue <- r$p.value;
 		      if (pvalue < 0.05){
 			 if (pvalue < 0.0001){
-			    dec <- '*** NULL hypothesis rejected';
+			    dec <- '*** hypothesis rejected';
                             rejected <- TRUE;
 			 }else if (pvalue < 0.001){
-			    dec <- '** NULL hypothesis rejected';
+			    dec <- '** hypothesis rejected';
                             rejected <- TRUE;
 			 }else{
-			    dec <- '* NULL hypothesis rejected';
+			    dec <- '* hypothesis rejected';
                             rejected <- TRUE;
 			 } 
 		      }else{
-		         dec <- 'NULL hypothesis NOT rejected';
+		         dec <- 'hypothesis NOT rejected';
                          rejected <- FALSE;
 		      }
 		      if (type_comparison == 'two.sided'){
-		      	 desc <- 'The alternative hypothesis evaluated in the test affirms that the two samples come from different distributions.'
+		      	 desc <- 'The hypothesis evaluated in the test affirms that the two samples come from the same distribution.'
 		      }else if (type_comparison == 'greater'){
-		      	 desc <- 'The alternative hypothesis evaluated in the test affirms that the first sample is lower than the second sample.'
+		      	 desc <- 'The hypothesis evaluated in the test affirms that the first sample is greater than the second sample.'
 		      }else{
-		      	 desc <- 'The alternative hypothesis evaluated in the test affirms that the first sample is greater than the second sample.'
+		      	 desc <- 'The hypothesis evaluated in the test affirms that the first sample is lower than the second sample.'
 		      }
 		  test <- "Two paired Kolmogorov Smirnov test";
 	   }
@@ -244,20 +244,20 @@ compare <- function(list){
 		 pvalue <- r$p.value;
 		      if (pvalue < 0.05){
 			 if (pvalue < 0.0001){
-			    dec <- '*** NULL hypothesis rejected';
+			    dec <- '*** hypothesis rejected';
                             rejected <- TRUE;
 			 }else if (pvalue < 0.001){
-			    dec <- '** NULL hypothesis rejected';
+			    dec <- '** hypothesis rejected';
                             rejected <- TRUE;
 			 }else{
-			    dec <- '* NULL hypothesis rejected';
+			    dec <- '* hypothesis rejected';
                             rejected <- TRUE;
 			 } 
 		      }else{
-		         dec <- 'NULL hypothesis NOT rejected';
+		         dec <- 'hypothesis NOT rejected';
                          rejected <- FALSE;
 		      }
-	      	      desc <- 'The alternative hypothesis evaluated in the test affirms that all the samples come from different distributions.'
+	      	      desc <- 'The hypothesis evaluated in the test affirms that all the samples come from the same distribution.'
   	         test <- "Kruskal Wallis test";
 	      }else{ # dependientes (Friedman)
 	         cat("Dependientes\n");
@@ -270,20 +270,20 @@ compare <- function(list){
 		 pvalue <- r$p.value;
 		      if (pvalue < 0.05){
 			 if (pvalue < 0.0001){
-			    dec <- '*** NULL hypothesis rejected';
+			    dec <- '*** hypothesis rejected';
                             rejected <- TRUE;
 			 }else if (pvalue < 0.001){
-			    dec <- '** NULL hypothesis rejected';
+			    dec <- '** hypothesis rejected';
                             rejected <- TRUE;
 			 }else{
-			    dec <- '* NULL hypothesis rejected';
+			    dec <- '* hypothesis rejected';
                             rejected <- TRUE;
 			 } 
 		      }else{
-		         dec <- 'NULL hypothesis NOT rejected';
+		         dec <- 'hypothesis NOT rejected';
                          rejected <- FALSE;
 		      }
-	      	      desc <- 'The alternative hypothesis evaluated in the test affirms that all the samples come from different distributions.'
+	      	      desc <- 'The hypothesis evaluated in the test affirms that all the samples come from the same distribution.'
   	         test <- "Friedman test";
 	      }
 	   }
@@ -460,4 +460,3 @@ while (1){
 	   send.raw.string(service_socket,mensaje);
         },finally = function(w){});
 }
-
