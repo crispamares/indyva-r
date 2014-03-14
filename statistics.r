@@ -134,17 +134,17 @@ compare <- function(list){
 		      }
 		      if (pvalue < 0.05){
 			 if (pvalue < 0.0001){
-			    dec <- '*** hypothesis rejected';
+			    dec <- '*** NULL hypothesis rejected';
                             rejected <- TRUE;
 			 }else if (pvalue < 0.001){
-			    dec <- '** hypothesis rejected';
+			    dec <- '** NULL hypothesis rejected';
                             rejected <- TRUE;
 			 }else{
-			    dec <- '* hypothesis rejected';
+			    dec <- '* NULL hypothesis rejected';
                             rejected <- TRUE;
 			 } 
 		      }else{
-		         dec <- 'hypothesis NOT rejected';
+		         dec <- 'NULL hypothesis NOT rejected';
                          rejected <- FALSE;
 		      }
 		      test <- "Welch T-test";
@@ -154,17 +154,17 @@ compare <- function(list){
 		      pvalue <- r$p.value;
 		      if (pvalue < 0.05){
 			 if (pvalue < 0.0001){
-			    dec <- '*** hypothesis rejected';
+			    dec <- '*** NULL hypothesis rejected';
                             rejected <- TRUE;
 			 }else if (pvalue < 0.001){
-			    dec <- '** hypothesis rejected';
+			    dec <- '** NULL hypothesis rejected';
                             rejected <- TRUE;
 			 }else{
-			    dec <- '* hypothesis rejected';
+			    dec <- '* NULL hypothesis rejected';
                             rejected <- TRUE;
 			 } 
 		      }else{
-		         dec <- 'hypothesis NOT rejected';
+		         dec <- 'NULL hypothesis NOT rejected';
                          rejected <- FALSE;
 		      }
 		      if (type_comparison == 'two.sided'){
@@ -182,17 +182,17 @@ compare <- function(list){
 		  pvalue <- r$p.value;
 		      if (pvalue < 0.05){
 			 if (pvalue < 0.0001){
-			    dec <- '*** hypothesis rejected';
+			    dec <- 'NULL *** hypothesis rejected';
                             rejected <- TRUE;
 			 }else if (pvalue < 0.001){
-			    dec <- '** hypothesis rejected';
+			    dec <- 'NULL ** hypothesis rejected';
                             rejected <- TRUE;
 			 }else{
-			    dec <- '* hypothesis rejected';
+			    dec <- 'NULL * hypothesis rejected';
                             rejected <- TRUE;
 			 } 
 		      }else{
-		         dec <- 'hypothesis NOT rejected';
+		         dec <- 'NULL hypothesis NOT rejected';
                          rejected <- FALSE;
 		      }
 		      if (type_comparison == 'two.sided'){
@@ -244,17 +244,17 @@ compare <- function(list){
 		 pvalue <- r$p.value;
 		      if (pvalue < 0.05){
 			 if (pvalue < 0.0001){
-			    dec <- '*** hypothesis rejected';
+			    dec <- '*** NULL hypothesis rejected';
                             rejected <- TRUE;
 			 }else if (pvalue < 0.001){
-			    dec <- '** hypothesis rejected';
+			    dec <- '** NULL hypothesis rejected';
                             rejected <- TRUE;
 			 }else{
-			    dec <- '* hypothesis rejected';
+			    dec <- '* NULL hypothesis rejected';
                             rejected <- TRUE;
 			 } 
 		      }else{
-		         dec <- 'hypothesis NOT rejected';
+		         dec <- 'NULL hypothesis NOT rejected';
                          rejected <- FALSE;
 		      }
 	      	      desc <- 'The alternative hypothesis evaluated in the test affirms that all the samples provide from different distributions.'
@@ -270,17 +270,17 @@ compare <- function(list){
 		 pvalue <- r$p.value;
 		      if (pvalue < 0.05){
 			 if (pvalue < 0.0001){
-			    dec <- '*** hypothesis rejected';
+			    dec <- '*** NULL hypothesis rejected';
                             rejected <- TRUE;
 			 }else if (pvalue < 0.001){
-			    dec <- '** hypothesis rejected';
+			    dec <- '** NULL hypothesis rejected';
                             rejected <- TRUE;
 			 }else{
-			    dec <- '* hypothesis rejected';
+			    dec <- '* NULL hypothesis rejected';
                             rejected <- TRUE;
 			 } 
 		      }else{
-		         dec <- 'hypothesis NOT rejected';
+		         dec <- 'NULL hypothesis NOT rejected';
                          rejected <- FALSE;
 		      }
 	      	      desc <- 'The alternative hypothesis evaluated in the test affirms that all the samples provide from different distributions.'
