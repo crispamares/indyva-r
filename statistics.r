@@ -182,13 +182,13 @@ compare <- function(list){
 		  pvalue <- r$p.value;
 		      if (pvalue < 0.05){
 			 if (pvalue < 0.0001){
-			    dec <- 'NULL *** hypothesis rejected';
+			    dec <- '*** NULL hypothesis rejected';
                             rejected <- TRUE;
 			 }else if (pvalue < 0.001){
-			    dec <- 'NULL ** hypothesis rejected';
+			    dec <- '** NULL hypothesis rejected';
                             rejected <- TRUE;
 			 }else{
-			    dec <- 'NULL * hypothesis rejected';
+			    dec <- '* NULL hypothesis rejected';
                             rejected <- TRUE;
 			 } 
 		      }else{
