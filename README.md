@@ -2,7 +2,7 @@
 
 How to run Stats Service:
 
-R -file statistics.r --args <in_port> <server_port>
+R -f statistics.r --args <in_port> <server_port>
 
 Server: StatsSrv
 Services: basicStats, compareTwo, distributionOf, getInfoDistribution
