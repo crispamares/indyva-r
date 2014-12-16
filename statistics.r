@@ -128,10 +128,10 @@
 		if (length(lista_samples) == 2){ # Dos muestras
 		   cat("Numero de samples:2\n");
 		   if (length(lista_samples[[1]]) < 50 || length(lista_samples[[2]]) < 50){
-		   		warn <- "Length of samples should be greater than 50 in order to correctly compare.";
+		   		warn <- 'Length of samples should be greater than 50 in order to correctly compare.';
 		   }
 		   tamMaximo <- min(length(lista_samples[[1]]),length(lista_samples[[2]]));
-		   info <- "Selecting " + tamMaximo + " values as population samples for comparison of each variable.";
+		   info <- paste('Selecting',tamMaximo,'values as population samples for comparison of each variable.');
 		   sample_1 <- sample(lista_samples[[1]],length=tamMaximo,replace=FALSE);
 		   sample_2 <- sample(lista_samples[[2]],length=tamMaximo,replace=FALSE);
 		   if (sigueNormal(lista_samples[[1]]) == TRUE && sigueNormal(lista_samples[[2]]) == TRUE){ # Parametrico
@@ -141,12 +141,12 @@
 		   	      r <- t.test(sample_1,sample_2,paired=F,alternative=type_comparison);
 			      pvalue <- r$p.value;
 			      if (type_comparison == 'two.sided'){
-			      	 desc <- 'Sample '+lista_variables[[1]]+' of subset '+lista_subsets[[2]]+' and  sample '+lista_variables[[2]]+' of subset '+lista_subsets[[2]] + 'come from THE SAME Distribution.';
+			      	 desc <- paste('Sample',lista_variables[[1]],'of subset',lista_subsets[[2]],'and sample',lista_variables[[2]],'of subset',lista_subsets[[2]] ,'come from THE SAME Distribution.');
 			      }else if (type_comparison == 'greater'){
-			      	 desc <- 'Sample '+lista_variables[[1]]+' of subset '+lista_subsets[[2]]+' IS GREATER THAN  sample '+lista_variables[[2]]+' of subset '+lista_subsets[[2]] + '.';
+			      	 desc <- paste('Sample',lista_variables[[1]],'of subset',lista_subsets[[2]],'IS GREATER THAN sample',lista_variables[[2]],'of subset',lista_subsets[[2]],'.');
 			      	 # desc <- 'The hypothesis evaluated in the test affirms that the first sample is greater than the second sample.'
 			      }else{
-			      	 desc <- 'Sample '+lista_variables[[1]]+' of subset '+lista_subsets[[2]]+' IS LOWER THAN  sample '+lista_variables[[2]]+' of subset '+lista_subsets[[2]] + '.';
+			      	 desc <- paste('Sample',lista_variables[[1]],'of subset',lista_subsets[[2]],'IS LOWER THAN sample',lista_variables[[2]],'of subset',lista_subsets[[2]],'.');
 			      	 # desc <- 'The hypothesis evaluated in the test affirms that the first sample is lower than the second sample.'
 			      }
 			      if (pvalue < 0.05){
@@ -185,12 +185,12 @@
 	                         rejected <- FALSE;
 			      }
 			      if (type_comparison == 'two.sided'){
-			      	 desc <- 'Sample '+lista_variables[[1]]+' of subset '+lista_subsets[[2]]+' and  sample '+lista_variables[[2]]+' of subset '+lista_subsets[[2]] + 'come from THE SAME Distribution.';
+			      	 desc <- paste('Sample',lista_variables[[1]],'of subset',lista_subsets[[2]],'and sample',lista_variables[[2]],'of subset',lista_subsets[[2]] ,'come from THE SAME Distribution.');
 			      }else if (type_comparison == 'greater'){
-			      	 desc <- 'Sample '+lista_variables[[1]]+' of subset '+lista_subsets[[2]]+' IS GREATER THAN  sample '+lista_variables[[2]]+' of subset '+lista_subsets[[2]] + '.';
+			      	 desc <- paste('Sample',lista_variables[[1]],'of subset',lista_subsets[[2]],'IS GREATER THAN sample',lista_variables[[2]],'of subset',lista_subsets[[2]],'.');
 			      	 # desc <- 'The hypothesis evaluated in the test affirms that the first sample is greater than the second sample.'
 			      }else{
-			      	 desc <- 'Sample '+lista_variables[[1]]+' of subset '+lista_subsets[[2]]+' IS LOWER THAN  sample '+lista_variables[[2]]+' of subset '+lista_subsets[[2]] + '.';
+			      	 desc <- paste('Sample',lista_variables[[1]],'of subset',lista_subsets[[2]],'IS LOWER THAN sample',lista_variables[[2]],'of subset',lista_subsets[[2]],'.');
 			      	 # desc <- 'The hypothesis evaluated in the test affirms that the first sample is lower than the second sample.'
 			      }
 			      test <- "Two Paired T-test";
@@ -215,12 +215,12 @@
 	                         rejected <- FALSE;
 			      }
 			      if (type_comparison == 'two.sided'){
-			      	 desc <- 'Sample '+lista_variables[[1]]+' of subset '+lista_subsets[[2]]+' and  sample '+lista_variables[[2]]+' of subset '+lista_subsets[[2]] + 'come from THE SAME Distribution.';
+			      	 desc <- paste('Sample',lista_variables[[1]],'of subset',lista_subsets[[2]],'and sample',lista_variables[[2]],'of subset',lista_subsets[[2]] ,'come from THE SAME Distribution.');
 			      }else if (type_comparison == 'greater'){
-			      	 desc <- 'Sample '+lista_variables[[1]]+' of subset '+lista_subsets[[2]]+' IS GREATER THAN  sample '+lista_variables[[2]]+' of subset '+lista_subsets[[2]] + '.';
+			      	 desc <- paste('Sample',lista_variables[[1]],'of subset',lista_subsets[[2]],'IS GREATER THAN sample',lista_variables[[2]],'of subset',lista_subsets[[2]],'.');
 			      	 # desc <- 'The hypothesis evaluated in the test affirms that the first sample is greater than the second sample.'
 			      }else{
-			      	 desc <- 'Sample '+lista_variables[[1]]+' of subset '+lista_subsets[[2]]+' IS LOWER THAN  sample '+lista_variables[[2]]+' of subset '+lista_subsets[[2]] + '.';
+			      	 desc <- paste('Sample',lista_variables[[1]],'of subset',lista_subsets[[2]],'IS LOWER THAN sample',lista_variables[[2]],'of subset',lista_subsets[[2]],'.');
 			      	 # desc <- 'The hypothesis evaluated in the test affirms that the first sample is lower than the second sample.'
 			      }
 			   test <- "Two paired Kolmogorov Smirnov test";
@@ -237,7 +237,7 @@
 				if (tamMaximo > length(lista_samples[[i]]))
 					tamMaximo <- length(lista_samples[[i]]);
 		   }
-		    info <- "Selecting " + tamMaximo + " values as population samples for comparison of each variable.";
+		    info <- paste('Selecting',tamMaximo,'values as population samples for comparison of each variable.');
 			if (tamMaximo < 50){
 		   		warn <- "Length of samples should be greater than 50 in order to correctly compare.";
 		    }
