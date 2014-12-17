@@ -112,8 +112,8 @@
 		  return(-1);
 		}else{
 		  lista_samples <- list[[1]];
-		  lista_variables <- lista[[2]];
-		  lista_subsets <- lista[[3]];
+		  lista_variables <- list[[2]];
+		  lista_subsets <- list[[3]];
 	      type_comparison <- "two.sided";
 		  type_data <- "i";
 		  if (list[[4]] != "i" && list[[4]] != "d") return(-1);
@@ -132,8 +132,8 @@
 		   }
 		   tamMaximo <- min(length(lista_samples[[1]]),length(lista_samples[[2]]));
 		   info <- paste('Selecting',tamMaximo,'values as population samples for comparison of each variable.');
-		   sample_1 <- sample(lista_samples[[1]],length=tamMaximo,replace=FALSE);
-		   sample_2 <- sample(lista_samples[[2]],length=tamMaximo,replace=FALSE);
+		   sample_1 <- sample(lista_samples[[1]],size=tamMaximo,replace=FALSE);
+		   sample_2 <- sample(lista_samples[[2]],size=tamMaximo,replace=FALSE);
 		   if (sigueNormal(lista_samples[[1]]) == TRUE && sigueNormal(lista_samples[[2]]) == TRUE){ # Parametrico
 		   	   cat("Siguen una dist. Normal\n");
 		   	   if (type_data == "i"){ # Independientes
@@ -247,7 +247,7 @@
 			 dimnames(m) <- list(NULL,c(1:length(lista_samples)));
 			 m <- data.frame(m);
 			 for (i in 1:length(lista_samples)){
-			     m[,i] <- sample(lista_samples[[i]],length=tamMaximo,replace=FALSE);
+			     m[,i] <- sample(lista_samples[[i]],size=tamMaximo,replace=FALSE);
 			 }
 			 #print(m);
 		      if (type_data == "i"){ # independiente (one-way ANOVA)
@@ -269,7 +269,7 @@
 		      if (type_data == "i"){ # independiente (Kruskal Wallis)
 		         cat("Independientes\n");
 			   	for (i in 1:length(lista_samples)){
-			   		lista_samples[[i]] <- sample(lista_samples[[i]],length=tamMaximo,replace=FALSE);
+			   		lista_samples[[i]] <- sample(lista_samples[[i]],size=tamMaximo,replace=FALSE);
 				}		         
 		      	 r <- kruskal.test(lista_samples);
 			 	 pvalue <- r$p.value;
@@ -295,7 +295,7 @@
 		         m <- matrix(0,ncol=length(lista_samples),nrow=length(lista_samples[[1]]));
 			 dimnames(m) <- list(NULL,c(1:length(lista_samples)));
 			 for (i in 1:length(lista_samples)){
-			     m[,i] <- sample(lista_samples[[i]],length=tamMaximo,replace=FALSE);
+			     m[,i] <- sample(lista_samples[[i]],size=tamMaximo,replace=FALSE);
 			 }
 		      	 r <- friedman.test(m);
 			 pvalue <- r$p.value;
@@ -476,6 +476,7 @@
 		           send.raw.string(service_socket,mensaje);
 			}else{
 			   result <- do.call(msg$method,list(list=msg$params));
+			   cat (JSONRPC.SuccessResponse(result,msg$id));
 			   if (is.numeric(result) && result == -1){
 		 	      mensaje <- JSONRPC.ErrorResponse("JSONRPC.InvalidParamsError",list(),msg_id);
 		              send.raw.string(service_socket,mensaje);
@@ -487,6 +488,9 @@
 			   }
 			}
 	        },error = function(err){
+	           message ("********* ERROR: ");
+	           message (err);
+	           message (" \n");
 		   mensaje <- JSONRPC.ErrorResponse("JSONRPC.InvalidRequestError",list(),msg_id);
 		   send.raw.string(service_socket,mensaje);
 	        },finally = function(w){});
