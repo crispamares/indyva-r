@@ -1,5 +1,5 @@
     # statistics.r - 
-	# Created on 18/12/2013
+    # Created on 18/12/2013
 	# @author: sgonzalez
 	# Modified on 16/12/2014
 
@@ -138,15 +138,15 @@
 		   	   cat("Siguen una dist. Normal\n");
 		   	   if (type_data == "i"){ # Independientes
 			      cat("Independientes\n");
-		   	      r <- t.test(sample_1,sample_2,paired=F,alternative=type_comparison);
+		   	      r <- t.test(sample_1,sample_2,paired=TRUE,alternative=type_comparison);
 			      pvalue <- r$p.value;
 			      if (type_comparison == 'two.sided'){
-			      	 desc <- paste('Sample',lista_variables[[1]],'of subset',lista_subsets[[2]],'and sample',lista_variables[[2]],'of subset',lista_subsets[[2]] ,'come from THE SAME Distribution.');
+			      	 desc <- paste('Sample',lista_variables[[1]],'of subset',lista_subsets[[2]],'and sample',lista_variables[[2]],'of subset',lista_subsets[[2]] ,'come from DIFFERENT Distributions.');
 			      }else if (type_comparison == 'greater'){
-			      	 desc <- paste('Sample',lista_variables[[1]],'of subset',lista_subsets[[2]],'IS GREATER THAN sample',lista_variables[[2]],'of subset',lista_subsets[[2]],'.');
+			      	 desc <- paste('Sample',lista_variables[[1]],'of subset',lista_subsets[[2]],'IS LOWER THAN sample',lista_variables[[2]],'of subset',lista_subsets[[2]],'.');
 			      	 # desc <- 'The hypothesis evaluated in the test affirms that the first sample is greater than the second sample.'
 			      }else{
-			      	 desc <- paste('Sample',lista_variables[[1]],'of subset',lista_subsets[[2]],'IS LOWER THAN sample',lista_variables[[2]],'of subset',lista_subsets[[2]],'.');
+			      	 desc <- paste('Sample',lista_variables[[1]],'of subset',lista_subsets[[2]],'IS GREATER THAN sample',lista_variables[[2]],'of subset',lista_subsets[[2]],'.');
 			      	 # desc <- 'The hypothesis evaluated in the test affirms that the first sample is lower than the second sample.'
 			      }
 			      if (pvalue < 0.05){
@@ -167,7 +167,7 @@
 			      test <- "Welch T-test";
 			   }else{ # Dependientes
 			      cat("Dependientes\n");
-		   	      r <- t.test(sample_1,sample_2,paired=T,alternative=type_comparison);		      
+		   	      r <- t.test(sample_1,sample_2,paired=FALSE,alternative=type_comparison);		      
 			      pvalue <- r$p.value;
 			      if (pvalue < 0.05){
 				 if (pvalue < 0.0001){
@@ -185,12 +185,12 @@
 	                         rejected <- FALSE;
 			      }
 			      if (type_comparison == 'two.sided'){
-			      	 desc <- paste('Sample',lista_variables[[1]],'of subset',lista_subsets[[2]],'and sample',lista_variables[[2]],'of subset',lista_subsets[[2]] ,'come from THE SAME Distribution.');
+			      	 desc <- paste('Sample',lista_variables[[1]],'of subset',lista_subsets[[2]],'and sample',lista_variables[[2]],'of subset',lista_subsets[[2]] ,'come from DIFFERENT Distributions.');
 			      }else if (type_comparison == 'greater'){
-			      	 desc <- paste('Sample',lista_variables[[1]],'of subset',lista_subsets[[2]],'IS GREATER THAN sample',lista_variables[[2]],'of subset',lista_subsets[[2]],'.');
+			      	 desc <- paste('Sample',lista_variables[[1]],'of subset',lista_subsets[[2]],'IS LOWER THAN sample',lista_variables[[2]],'of subset',lista_subsets[[2]],'.');
 			      	 # desc <- 'The hypothesis evaluated in the test affirms that the first sample is greater than the second sample.'
 			      }else{
-			      	 desc <- paste('Sample',lista_variables[[1]],'of subset',lista_subsets[[2]],'IS LOWER THAN sample',lista_variables[[2]],'of subset',lista_subsets[[2]],'.');
+			      	 desc <- paste('Sample',lista_variables[[1]],'of subset',lista_subsets[[2]],'IS GREATER THAN sample',lista_variables[[2]],'of subset',lista_subsets[[2]],'.');
 			      	 # desc <- 'The hypothesis evaluated in the test affirms that the first sample is lower than the second sample.'
 			      }
 			      test <- "Two Paired T-test";
