@@ -138,18 +138,18 @@
 		   	   cat("Siguen una dist. Normal\n");
 		   	   if (type_data == "i"){ # Independientes
 			      cat("Independientes\n");
-		   	      r <- t.test(sample_1,sample_2,paired=TRUE,alternative=type_comparison);
+		   	      r <- t.test(sample_1,sample_2,paired=FALSE,alternative=type_comparison);
 			      pvalue <- r$p.value;
 			      if (type_comparison == 'two.sided'){
-			      	 desc <- paste('Sample',lista_variables[[1]],'of subset',lista_subsets[[2]],'and sample',lista_variables[[2]],'of subset',lista_subsets[[2]] ,'come from DIFFERENT Distributions.');
+			      	 desc <- paste('Sample',lista_variables[[1]],'of subset',lista_subsets[[2]],'and sample',lista_variables[[2]],'of subset',lista_subsets[[2]] ,'come from SAME Distribution.');
 			      }else if (type_comparison == 'greater'){
-			      	 desc <- paste('Sample',lista_variables[[1]],'of subset',lista_subsets[[2]],'IS LOWER THAN sample',lista_variables[[2]],'of subset',lista_subsets[[2]],'.');
+			      	 desc <- paste('Sample',lista_variables[[1]],'of subset',lista_subsets[[2]],'IS GREATER THAN sample',lista_variables[[2]],'of subset',lista_subsets[[2]],'.');
 			      	 # desc <- 'The hypothesis evaluated in the test affirms that the first sample is greater than the second sample.'
 			      }else{
-			      	 desc <- paste('Sample',lista_variables[[1]],'of subset',lista_subsets[[2]],'IS GREATER THAN sample',lista_variables[[2]],'of subset',lista_subsets[[2]],'.');
+			      	 desc <- paste('Sample',lista_variables[[1]],'of subset',lista_subsets[[2]],'IS LOWER THAN sample',lista_variables[[2]],'of subset',lista_subsets[[2]],'.');
 			      	 # desc <- 'The hypothesis evaluated in the test affirms that the first sample is lower than the second sample.'
 			      }
-			      if (pvalue < 0.05){
+			      if (pvalue <= 0.05){
 					 if (pvalue < 0.0001){
 					    dec <- '*** hypothesis rejected';
 		                            rejected <- TRUE;
@@ -160,37 +160,59 @@
 					    dec <- '* hypothesis rejected';
 		                            rejected <- TRUE;
 					 } 
+				  }else if (pvalue >= 0.95){
+					 if (pvalue >= (1.0 - 0.0001){
+					    dec <- '*** hypothesis accepted';
+		                rejected <- FALSE;
+					 }else if (pvalue >= (1.0 - 0.001)){
+					    dec <- '** hypothesis accepted';
+		                 rejected <- FALSE;
+					 }else{
+					    dec <- '* hypothesis accepted';
+		                rejected <- FALSE;
+					 } 				  	
 			      }else{
-			         dec <- 'hypothesis NOT rejected';
+			         dec <- 'hypothesis INCONCLUSIVE';
 	                         rejected <- FALSE;
 			      }
 			      test <- "Welch T-test";
 			   }else{ # Dependientes
 			      cat("Dependientes\n");
-		   	      r <- t.test(sample_1,sample_2,paired=FALSE,alternative=type_comparison);		      
+		   	      r <- t.test(sample_1,sample_2,paired=TRUE,alternative=type_comparison);		      
 			      pvalue <- r$p.value;
-			      if (pvalue < 0.05){
-				 if (pvalue < 0.0001){
-				    dec <- '*** hypothesis rejected';
-	                            rejected <- TRUE;
-				 }else if (pvalue < 0.001){
-				    dec <- '** hypothesis rejected';
-	                            rejected <- TRUE;
-				 }else{
-				    dec <- '* hypothesis rejected';
-	                            rejected <- TRUE;
-				 } 
+			      if (pvalue <= 0.05){
+					 if (pvalue < 0.0001){
+					    dec <- '*** hypothesis rejected';
+		                            rejected <- TRUE;
+					 }else if (pvalue < 0.001){
+					    dec <- '** hypothesis rejected';
+		                            rejected <- TRUE;
+					 }else{
+					    dec <- '* hypothesis rejected';
+		                            rejected <- TRUE;
+					 } 
+				  }else if (pvalue >= 0.95){
+					 if (pvalue >= (1.0 - 0.0001){
+					    dec <- '*** hypothesis accepted';
+		                rejected <- FALSE;
+					 }else if (pvalue >= (1.0 - 0.001)){
+					    dec <- '** hypothesis accepted';
+		                 rejected <- FALSE;
+					 }else{
+					    dec <- '* hypothesis accepted';
+		                rejected <- FALSE;
+					 } 				  	
 			      }else{
-			         dec <- 'hypothesis NOT rejected';
+			         dec <- 'hypothesis INCONCLUSIVE';
 	                         rejected <- FALSE;
 			      }
 			      if (type_comparison == 'two.sided'){
-			      	 desc <- paste('Sample',lista_variables[[1]],'of subset',lista_subsets[[2]],'and sample',lista_variables[[2]],'of subset',lista_subsets[[2]] ,'come from DIFFERENT Distributions.');
+			      	 desc <- paste('Sample',lista_variables[[1]],'of subset',lista_subsets[[2]],'and sample',lista_variables[[2]],'of subset',lista_subsets[[2]] ,'come from SAME Distribution.');
 			      }else if (type_comparison == 'greater'){
-			      	 desc <- paste('Sample',lista_variables[[1]],'of subset',lista_subsets[[2]],'IS LOWER THAN sample',lista_variables[[2]],'of subset',lista_subsets[[2]],'.');
+			      	 desc <- paste('Sample',lista_variables[[1]],'of subset',lista_subsets[[2]],'IS GREATER THAN sample',lista_variables[[2]],'of subset',lista_subsets[[2]],'.');
 			      	 # desc <- 'The hypothesis evaluated in the test affirms that the first sample is greater than the second sample.'
 			      }else{
-			      	 desc <- paste('Sample',lista_variables[[1]],'of subset',lista_subsets[[2]],'IS GREATER THAN sample',lista_variables[[2]],'of subset',lista_subsets[[2]],'.');
+			      	 desc <- paste('Sample',lista_variables[[1]],'of subset',lista_subsets[[2]],'IS LOWER THAN sample',lista_variables[[2]],'of subset',lista_subsets[[2]],'.');
 			      	 # desc <- 'The hypothesis evaluated in the test affirms that the first sample is lower than the second sample.'
 			      }
 			      test <- "Two Paired T-test";
@@ -199,7 +221,7 @@
 	     	      cat("No siguen dist. En este caso funciona igual para dependientes e idependientes\n");
 		   	  	  r <- ks.test(sample_1,sample_2,alternative=type_comparison); 
 			  	  pvalue <- r$p.value;
-			      if (pvalue < 0.05){
+			      if (pvalue <= 0.05){
 					 if (pvalue < 0.0001){
 					    dec <- '*** hypothesis rejected';
 		                            rejected <- TRUE;
@@ -210,8 +232,19 @@
 					    dec <- '* hypothesis rejected';
 		                            rejected <- TRUE;
 					 } 
+				  }else if (pvalue >= 0.95){
+					 if (pvalue >= (1.0 - 0.0001){
+					    dec <- '*** hypothesis accepted';
+		                rejected <- FALSE;
+					 }else if (pvalue >= (1.0 - 0.001)){
+					    dec <- '** hypothesis accepted';
+		                 rejected <- FALSE;
+					 }else{
+					    dec <- '* hypothesis accepted';
+		                rejected <- FALSE;
+					 } 				  	
 			      }else{
-			         dec <- 'hypothesis NOT rejected';
+			         dec <- 'hypothesis INCONCLUSIVE';
 	                         rejected <- FALSE;
 			      }
 			      if (type_comparison == 'two.sided'){
@@ -273,19 +306,30 @@
 				}		         
 		      	 r <- kruskal.test(lista_samples);
 			 	 pvalue <- r$p.value;
-			      if (pvalue < 0.05){
-				 if (pvalue < 0.0001){
-				    dec <- '*** hypothesis rejected';
-	                            rejected <- TRUE;
-				 }else if (pvalue < 0.001){
-				    dec <- '** hypothesis rejected';
-	                            rejected <- TRUE;
-				 }else{
-				    dec <- '* hypothesis rejected';
-	                            rejected <- TRUE;
-				 } 
+			      if (pvalue <= 0.05){
+					 if (pvalue < 0.0001){
+					    dec <- '*** hypothesis rejected';
+		                            rejected <- TRUE;
+					 }else if (pvalue < 0.001){
+					    dec <- '** hypothesis rejected';
+		                            rejected <- TRUE;
+					 }else{
+					    dec <- '* hypothesis rejected';
+		                            rejected <- TRUE;
+					 } 
+				  }else if (pvalue >= 0.95){
+					 if (pvalue >= (1.0 - 0.0001){
+					    dec <- '*** hypothesis accepted';
+		                rejected <- FALSE;
+					 }else if (pvalue >= (1.0 - 0.001)){
+					    dec <- '** hypothesis accepted';
+		                 rejected <- FALSE;
+					 }else{
+					    dec <- '* hypothesis accepted';
+		                rejected <- FALSE;
+					 } 				  	
 			      }else{
-			         dec <- 'hypothesis NOT rejected';
+			         dec <- 'hypothesis INCONCLUSIVE';
 	                         rejected <- FALSE;
 			      }
 		      	  desc <- 'The hypothesis evaluated in the test affirms that ALL the variables included in the Statistical Analysis COME FROM THE SAME Distribution.'
@@ -299,19 +343,30 @@
 			 }
 		      	 r <- friedman.test(m);
 			 pvalue <- r$p.value;
-			      if (pvalue < 0.05){
-				 if (pvalue < 0.0001){
-				    dec <- '*** hypothesis rejected';
-	                            rejected <- TRUE;
-				 }else if (pvalue < 0.001){
-				    dec <- '** hypothesis rejected';
-	                            rejected <- TRUE;
-				 }else{
-				    dec <- '* hypothesis rejected';
-	                            rejected <- TRUE;
-				 } 
+			      if (pvalue <= 0.05){
+					 if (pvalue < 0.0001){
+					    dec <- '*** hypothesis rejected';
+		                            rejected <- TRUE;
+					 }else if (pvalue < 0.001){
+					    dec <- '** hypothesis rejected';
+		                            rejected <- TRUE;
+					 }else{
+					    dec <- '* hypothesis rejected';
+		                            rejected <- TRUE;
+					 } 
+				  }else if (pvalue >= 0.95){
+					 if (pvalue >= (1.0 - 0.0001){
+					    dec <- '*** hypothesis accepted';
+		                rejected <- FALSE;
+					 }else if (pvalue >= (1.0 - 0.001)){
+					    dec <- '** hypothesis accepted';
+		                 rejected <- FALSE;
+					 }else{
+					    dec <- '* hypothesis accepted';
+		                rejected <- FALSE;
+					 } 				  	
 			      }else{
-			         dec <- 'hypothesis NOT rejected';
+			         dec <- 'hypothesis INCONCLUSIVE';
 	                         rejected <- FALSE;
 			      }
 		      	  desc <- 'The hypothesis evaluated in the test affirms that ALL the variables included in the Statistical Analysis COME FROM THE SAME Distribution.'
