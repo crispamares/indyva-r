@@ -161,7 +161,7 @@
 		                            rejected <- TRUE;
 					 } 
 				  }else if (pvalue >= 0.95){
-					 if (pvalue >= (1.0 - 0.0001){
+					 if (pvalue >= (1.0 - 0.0001)){
 					    dec <- '*** hypothesis accepted';
 		                rejected <- FALSE;
 					 }else if (pvalue >= (1.0 - 0.001)){
@@ -192,7 +192,7 @@
 		                            rejected <- TRUE;
 					 } 
 				  }else if (pvalue >= 0.95){
-					 if (pvalue >= (1.0 - 0.0001){
+					 if (pvalue >= (1.0 - 0.0001)){
 					    dec <- '*** hypothesis accepted';
 		                rejected <- FALSE;
 					 }else if (pvalue >= (1.0 - 0.001)){
@@ -233,7 +233,7 @@
 		                            rejected <- TRUE;
 					 } 
 				  }else if (pvalue >= 0.95){
-					 if (pvalue >= (1.0 - 0.0001){
+					 if (pvalue >= (1.0 - 0.0001)){
 					    dec <- '*** hypothesis accepted';
 		                rejected <- FALSE;
 					 }else if (pvalue >= (1.0 - 0.001)){
@@ -318,7 +318,7 @@
 		                            rejected <- TRUE;
 					 } 
 				  }else if (pvalue >= 0.95){
-					 if (pvalue >= (1.0 - 0.0001){
+					 if (pvalue >= (1.0 - 0.0001)){
 					    dec <- '*** hypothesis accepted';
 		                rejected <- FALSE;
 					 }else if (pvalue >= (1.0 - 0.001)){
@@ -355,7 +355,7 @@
 		                            rejected <- TRUE;
 					 } 
 				  }else if (pvalue >= 0.95){
-					 if (pvalue >= (1.0 - 0.0001){
+					 if (pvalue >= (1.0 - 0.0001)){
 					    dec <- '*** hypothesis accepted';
 		                rejected <- FALSE;
 					 }else if (pvalue >= (1.0 - 0.001)){
