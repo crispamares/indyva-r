@@ -1,6 +1,6 @@
-    # statistics.r - 
+# statistics.r - 
     # Created on 18/12/2013
-	# @author: sgonzalez
+    # @author: sgonzalez
 	# Modified on 16/12/2014
 
 	# En caso de ser necesario, instalar las librerias, copiando la siguiente linea.
@@ -301,12 +301,12 @@
 		   for (i in 1:length(lista_samples)){
 		       if (sigueNormal(lista_samples[[i]]) == FALSE){
 		       	  	decision <- FALSE;
-			  		break;
-				}
-				if (tamMaximo > length(lista_samples[[i]]))
-					tamMaximo <- length(lista_samples[[i]]);
+		       }
+		       if (tamMaximo > length(lista_samples[[i]]))
+		 	   tamMaximo <- length(lista_samples[[i]]);
 		   }
 		    info <- paste('Selecting',tamMaximo,'values as population samples for comparison of each variable.');
+		    cat('Selecting',tamMaximo,'values as population samples for comparison of each variable.');
 			if (tamMaximo < 50){
 		   		warn <- "Length of samples should be greater than 50 in order to correctly compare.";
 		    }
