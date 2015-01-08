@@ -21,6 +21,23 @@
 	srv_description <- function(){
 	    cat('srv_description\n');
 	    fn <- list(
+				compareAll = list(
+						params = list( c("list", "double array of arrays, list of samples of values"),
+								   c("list", "string array, names of variables to compare"),
+								   c("list", "string array, names of subsets"),
+							       c("type", "independent (i) or dependent data (d), default=i"),
+							       c("type_comparison", "string, possible values: two.sided | greater | less, default=two.sided")
+							       ),
+						return = list(list(pvalue="double, p value of the test", 
+						              decision="string, indicating if test is rejected or not",
+						       	      test="string, type of test used",
+						       	      desc="string, description of the test",
+	                             			      rejected="boolean, indicating if the test is rejected",
+							      warning="string, warning info about the execution",
+							      info="string, information about the execution"
+					  )
+				    )
+				),
 				compare = list(
 						params = list( c("list", "double array of arrays, list of samples of values"),
 								   c("list", "string array, names of variables to compare"),
@@ -35,7 +52,7 @@
 	                                  rejected="boolean, indicating if the test is rejected",
 	                                  warning="string, warning info about the execution",
 	                                  info="string, information about the execution"
-	                      )
+	                      		  )
 				),
 				correlation = list(
 						params = list( c("list", "double array of arrays, list of 2 samples of values")
@@ -105,6 +122,41 @@
 		   return(list(value=c,type=type));
 		}
 	}
+
+	# compare several samples by 2
+	compareAll <- function(list){
+		if (length(list) < 3){ 
+		  return(-1);
+		}else{
+		  lista_samples <- list[[1]];
+		  lista_variables <- list[[2]];
+		  lista_subsets <- list[[3]];
+		  type_comparison <- "two.sided";
+		  type_data <- "i";
+		  if (list[[4]] != "i" && list[[4]] != "d") return(-1);
+		  type_data <- list[[4]];
+		  if (length(list) == 5){
+		     if (list[[5]] != "two.sided" && list[[5]] != "greater" && list[[5]] != "less") return(-1);
+		     type_comparison <- list[[5]];
+	          }
+		  result <- list();
+		  idx <- 1;
+		  cat('Num of samples:',length(lista_samples),'\n');
+		  for (i in 1:(length(lista_samples)-1)){
+		        for (j in (i+1):length(lista_samples)){
+				    cat('Executing comparison between',i,'and',j,'...\n');
+		        	    samples_aux <- list(lista_samples[[i]],lista_samples[[j]]);
+			      	    variables_aux <- list(lista_variables[[i]],lista_variables[[j]]);
+			      	    subsets_aux <- list(lista_subsets[[i]],lista_subsets[[j]]);
+				    res <- compare(list(samples_aux,variables_aux,subsets_aux,type_data,type_comparison));
+				    result[[idx]] <- res;
+				    idx <- idx + 1;
+		        }
+		  }
+		  return(result);
+		}
+	}
+
 
 	# compare two or more samples
 	compare <- function(list){
@@ -530,7 +582,7 @@
 	#===============================================================================
 
 	# Almacenamos en una lista los servicios disponibles de Stats
-	services <- c("compare","correlation","basicStats","distributionOf","getInfoDistribution");
+	services <- c("compareAll","compare","correlation","basicStats","distributionOf","getInfoDistribution");
 
 	# Leemos los argumentos de entrada, que son el puerto de entrada y de salida
 	args <- commandArgs(trailingOnly = TRUE)
