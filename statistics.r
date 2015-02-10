@@ -9,9 +9,9 @@
 	library("rzmq");
 	library("rjson");
 	library('fitdistrplus');
-
+  
 	if(!exists("JSONRPC.Protocol", mode="function")) source("jsonrpc.r");
-
+  source("orderRecorder.r");
 
 	#===============================================================================
 	#   Public methods
@@ -21,85 +21,108 @@
 	srv_description <- function(){
 	    cat('srv_description\n');
 	    fn <- list(
-				compareAll = list(
-						params = list( c("list", "double array of arrays, list of samples of values"),
-								   c("list", "string array, names of variables to compare"),
-								   c("list", "string array, names of subsets"),
-							       c("type", "independent (i) or dependent data (d), default=i"),
-							       c("type_comparison", "string, possible values: two.sided | greater | less, default=two.sided")
-							       ),
-						return = list(list(pvalue="double, p value of the test", 
-						              decision="string, indicating if test is rejected or not",
-						       	      test="string, type of test used",
-						       	      desc="string, description of the test",
-	                             			      rejected="boolean, indicating if the test is rejected",
-							      warning="string, warning info about the execution",
-							      info="string, information about the execution"
-					  )
-				    )
-				),
-				compare = list(
-						params = list( c("list", "double array of arrays, list of samples of values"),
-								   c("list", "string array, names of variables to compare"),
-								   c("list", "string array, names of subsets"),
-							       c("type", "independent (i) or dependent data (d), default=i"),
-							       c("type_comparison", "string, possible values: two.sided | greater | less, default=two.sided")
-							       ),
-						return = list(pvalue="double, p value of the test", 
-						              decision="string, indicating if test is rejected or not",
-						       	      test="string, type of test used",
-						       	      desc="string, description of the test",
-	                                  rejected="boolean, indicating if the test is rejected",
-	                                  warning="string, warning info about the execution",
-	                                  info="string, information about the execution"
-	                      		  )
-				),
-				correlation = list(
-						params = list( c("list", "double array of arrays, list of 2 samples of values")
-							       ),
-						return = list(value="double, correlation value", 
-						       	      type="string, type of correlation")
-				),
-				#compareTwo = list(
-				#		params = list( c("list1", "double array, first list of values"),
-				#		       	       c("list2", "double array, second list of values"),
-				#			       c("type", "char, representing continuous data (c) or discrete data (d), default=c"),
-				#			       c("type_comparison", "string, possible values: two.sided | greater | less, default=two.sided")
-				#			       ),
-				#		return = list(ks="double, p value of the KS test", 
-				#		       	      wilcox="double, p value of the Wilcoxon test")
-				#),
-				basicStats = list(
-						params = list( c("list", "double array, list of values") ),
-						return = list(min="double, min value of the list",
-							   	q1="double, first quartile value of the list",
-								median="double, median value of the list",
-								mean="double, mean value of the list",
-								q3="double, third quartile value of the list",
-								max="double, max value of the list",
-								sd="double, std. deviation value of the list")
-				),
-				distributionOf = list(
-						params = list( c("list", "double array, list of values"),
-						       	       c("type", "char, representing continuous data (c) or discrete data (d), default=c")
-							       ),
-						return = list(dist="list of distibutions not rejected")
-				),
-				getInfoDistribution = list(
-						params = list( c("list", "double array, list of values"),
-						       	       c("dist", "string, indicating the name of the distribution you want to fit with the list of values")
-							       ),
-						return = list(chisq="double, p value of the ChiSq test",
-						       	      cramer.value="double, p value of the Von Cramer test",
-							      ad.value="double, p value of the Anderson Darling test",
-							      ks.value="double, p value of the KS test",
-					       	      cramer.test="string, Von Cramer test decission",
-							      ad.test="string, Anderson Darling test decission",
-							      ks.test="string, KS test decission",
-							      estimate="list of doubles, parameters estimation of the distribution",
-							      plot="svg image in text format, plots of fitting distribution")
-				)
-			);
+	      compareAll = list(
+	        params = list( c("list", "double array of arrays, list of samples of values"),
+	                       c("list", "string array, names of variables to compare"),
+	                       c("list", "string array, names of subsets"),
+	                       c("type", "independent (i) or dependent data (d), default=i"),
+	                       c("type_comparison", "string, possible values: two.sided | greater | less, default=two.sided")
+	        ),
+	        return = list(list(pvalue="double, p value of the test", 
+	                           subsetA="string, subset name",
+	                           subsetB="string, subset name",
+	                           decision="string, indicating if test is rejected or not",
+	                           test="string, type of test used",
+	                           desc="string, description of the test",
+	                           rejected="boolean, indicating if the test is rejected",
+	                           warning="string, warning info about the execution",
+	                           info="string, information about the execution")
+	        )
+	      ),
+	      compare = list(
+	        params = list( c("list", "double array of arrays, list of samples of values"),
+	                       c("list", "string array, names of variables to compare"),
+	                       c("list", "string array, names of subsets"),
+	                       c("type", "independent (i) or dependent data (d), default=i"),
+	                       c("type_comparison", "string, possible values: two.sided | greater | less, default=two.sided")
+	        ),
+	        return = list(pvalue="double, p value of the test", 
+	                      decision="string, indicating if test is rejected or not",
+	                      test="string, type of test used",
+	                      desc="string, description of the test",
+	                      rejected="boolean, indicating if the test is rejected",
+	                      warning="string, warning info about the execution",
+	                      info="string, information about the execution"
+	        )
+	      ),
+	      statSort = list(
+	        params = list( c("list", "double array of arrays, list of samples of values"),
+	                       c("list", "string array, names of variables to compare"),
+	                       c("list", "string array, names of subsets")
+	        ),
+	        return = list(
+	          sorting = list(
+	            order = "list(subset) in decreasing order. Subset is a string",
+	            equals = "{subset : list(subset)} hashmap of subsets that come from shame distribution. Subset is a string"
+	          ),  
+	          tests = list(
+	            subsetA="string, subset name",
+	            subsetB="string, subset name",
+	            pvalue="double, p value of the test", 
+	            decision="string, indicating if test is rejected or not",
+	            test="string, type of test used",
+	            desc="string, description of the test",
+	            rejected="boolean, indicating if the test is rejected",
+	            warning="string, warning info about the execution",
+	            info="string, information about the execution")
+	        )
+	      ),
+	      correlation = list(
+	        params = list( c("list", "double array of arrays, list of 2 samples of values")
+	        ),
+	        return = list(value="double, correlation value", 
+	                      type="string, type of correlation")
+	      ),
+	      #compareTwo = list(
+	      #		params = list( c("list1", "double array, first list of values"),
+	      #		       	       c("list2", "double array, second list of values"),
+	      #			       c("type", "char, representing continuous data (c) or discrete data (d), default=c"),
+	      #			       c("type_comparison", "string, possible values: two.sided | greater | less, default=two.sided")
+	      #			       ),
+	      #		return = list(ks="double, p value of the KS test", 
+	      #		       	      wilcox="double, p value of the Wilcoxon test")
+	      #),
+	      basicStats = list(
+	        params = list( c("list", "double array, list of values") ),
+	        return = list(min="double, min value of the list",
+	                      q1="double, first quartile value of the list",
+	                      median="double, median value of the list",
+	                      mean="double, mean value of the list",
+	                      q3="double, third quartile value of the list",
+	                      max="double, max value of the list",
+	                      sd="double, std. deviation value of the list")
+	      ),
+	      distributionOf = list(
+	        params = list( c("list", "double array, list of values"),
+	                       c("type", "char, representing continuous data (c) or discrete data (d), default=c")
+	        ),
+	        return = list(dist="list of distibutions not rejected")
+	      ),
+	      getInfoDistribution = list(
+	        params = list( c("list", "double array, list of values"),
+	                       c("dist", "string, indicating the name of the distribution you want to fit with the list of values")
+	        ),
+	        return = list(chisq="double, p value of the ChiSq test",
+	                      cramer.value="double, p value of the Von Cramer test",
+	                      ad.value="double, p value of the Anderson Darling test",
+	                      ks.value="double, p value of the KS test",
+	                      cramer.test="string, Von Cramer test decission",
+	                      ad.test="string, Anderson Darling test decission",
+	                      ks.test="string, KS test decission",
+	                      estimate="list of doubles, parameters estimation of the distribution",
+	                      plot="svg image in text format, plots of fitting distribution")
+	      )
+	    );
 	}
 
 
@@ -149,6 +172,8 @@
 			      	    variables_aux <- list(lista_variables[[i]],lista_variables[[j]]);
 			      	    subsets_aux <- list(lista_subsets[[i]],lista_subsets[[j]]);
 				    res <- compare(list(samples_aux,variables_aux,subsets_aux,type_data,type_comparison));
+            res$subsetA <- lista_subsets[[i]];
+				    res$subsetB <- lista_subsets[[j]];
 				    result[[idx]] <- res;
 				    idx <- idx + 1;
 		        }
@@ -157,7 +182,47 @@
 		}
 	}
 
-
+	statSort <- function(list) {
+    args <- list;
+	  if (length(list) < 3) return(-1);
+	  samples_list <- args[[1]];
+	  variables_list <- args[[2]];
+	  subsets_list <- args[[3]];  
+    args[[4]] <- "i";
+    
+    record <- CreateOrderRecorder();
+    
+	  compare_types <- c("two.sided", "greater", "less");
+	  relationships <- c("equals", "larger", "smaller");
+	  
+    results <- list();
+    
+    for (i in 1:3) {
+      args[[5]] <- compare_types[i];
+      
+      message("compareAll - ", args[2:5]);
+      
+      compare_result <- compareAll(args);
+      for (res in compare_result) {  
+        if (! res$rejected && res$warning == "") { 
+          results <- append(results, res);
+          record$track(res$subsetA, res$subsetB, relationships[i]);
+        }
+      }
+    }
+    
+    if (! record$isAllCorrect()) {return (-1)}
+    
+	  return (
+	    list(  
+	      sorting = list(
+	        order = record$orderElems(),
+	        equals = record$equals()
+	      ),
+	      test = results)
+	  );
+	}
+	
 	# compare two or more samples
 	compare <- function(list){
 		if (length(list) < 3){ 
@@ -582,7 +647,7 @@
 	#===============================================================================
 
 	# Almacenamos en una lista los servicios disponibles de Stats
-	services <- c("compareAll","compare","correlation","basicStats","distributionOf","getInfoDistribution");
+	services <- c("compareAll","compare","statSort","correlation","basicStats","distributionOf","getInfoDistribution");
 
 	# Leemos los argumentos de entrada, que son el puerto de entrada y de salida
 	args <- commandArgs(trailingOnly = TRUE)
