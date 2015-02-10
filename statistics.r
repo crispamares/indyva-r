@@ -219,7 +219,7 @@
 	        order = record$orderElems(),
 	        equals = record$equals()
 	      ),
-	      test = results)
+	      tests = results)
 	  );
 	}
 	
