@@ -65,7 +65,7 @@
 	            order = "list(subset) in decreasing order. Subset is a string",
 	            equals = "{subset : list(subset)} hashmap of subsets that come from shame distribution. Subset is a string"
 	          ),  
-	          tests = list(
+	          tests = list(list(
 	            subsetA="string, subset name",
 	            subsetB="string, subset name",
 	            pvalue="double, p value of the test", 
@@ -74,7 +74,7 @@
 	            desc="string, description of the test",
 	            rejected="boolean, indicating if the test is rejected",
 	            warning="string, warning info about the execution",
-	            info="string, information about the execution")
+	            info="string, information about the execution"))
 	        )
 	      ),
 	      correlation = list(
@@ -205,7 +205,7 @@
       compare_result <- compareAll(args);
       for (res in compare_result) {  
         if (! res$rejected && res$warning == "") { 
-          results <- append(results, res);
+          results <- append(results, list(res));
           record$track(res$subsetA, res$subsetB, relationships[i]);
         }
       }
